@@ -1,0 +1,122 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+const Footer = () => {
+  const currentYear = new Date().getFullYear();
+  return <footer className="bg-gradient-to-b from-[#0a0e27] to-black border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                VR Kiralama
+              </span>
+            </div>
+            <p className="text-gray-400 text-sm mb-4">Türkiye'nin lider VR Tamir ve kiralama platformu. Kurumsal etkinlikler, fuarlar ve özel organizasyonlar için profesyonel VR çözümleri.</p>
+            <div className="flex space-x-3">
+              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-purple-500/20 flex items-center justify-center transition-all">
+                <Facebook className="w-4 h-4 text-gray-400" />
+              </a>
+              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-purple-500/20 flex items-center justify-center transition-all">
+                <Twitter className="w-4 h-4 text-gray-400" />
+              </a>
+              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-purple-500/20 flex items-center justify-center transition-all">
+                <Instagram className="w-4 h-4 text-gray-400" />
+              </a>
+              <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-purple-500/20 flex items-center justify-center transition-all">
+                <Linkedin className="w-4 h-4 text-gray-400" />
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">Hızlı Linkler</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+                  Ana Sayfa
+                </Link>
+              </li>
+              <li>
+                <Link to="/urunler" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+                  Ürünler
+                </Link>
+              </li>
+              <li>
+                <Link to="/oyunlar" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+                  Oyunlar
+                </Link>
+              </li>
+              <li>
+                <Link to="/kurumsal" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+                  Kurumsal
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">Hizmetler</h3>
+            <ul className="space-y-2">
+              <li>
+                <span className="text-gray-400 text-sm">VR Başlık Kiralama</span>
+              </li>
+              <li>
+                <span className="text-gray-400 text-sm">Fuar & Etkinlik Desteği</span>
+              </li>
+              <li>
+                <span className="text-gray-400 text-sm">Kurumsal Çözümler</span>
+              </li>
+              <li>
+                <span className="text-gray-400 text-sm">Teknik Destek</span>
+              </li>
+              <li>
+                <span className="text-gray-400 text-sm">Özel İçerik Geliştirme</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">İletişim</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start space-x-3">
+                <MapPin className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                <span className="text-gray-400 text-sm">İstoç, 32. Ada No:76-78, Bağcılar, İstanbul</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <span className="text-gray-400 text-sm">+90 212 555 0123</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <span className="text-gray-400 text-sm">vr@vrtamirmerkezi.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-8 border-t border-white/5">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-gray-500 text-sm">
+              © {currentYear} VR Kiralama. Tüm hakları saklıdır.
+            </p>
+            <div className="flex space-x-6">
+              <Link to="#" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Gizlilik Politikası
+              </Link>
+              <Link to="#" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Kullanım Koşulları
+              </Link>
+              <Link to="#" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                KVKK
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>;
+};
+export default Footer;
