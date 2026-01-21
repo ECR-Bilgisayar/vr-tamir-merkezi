@@ -62,20 +62,18 @@ const Footer = () => {
             <h3 className="text-white font-semibold mb-4">Hizmetler</h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-gray-400 text-sm">VR Başlık Kiralama</span>
+                <span className="text-gray-400 text-sm">VR Servis & Onarım</span>
               </li>
               <li>
                 <span className="text-gray-400 text-sm">Fuar & Etkinlik Desteği</span>
               </li>
               <li>
-                <span className="text-gray-400 text-sm">Kurumsal Çözümler</span>
+                <span className="text-gray-400 text-sm">VR Gözlük Kiralama</span>
               </li>
               <li>
                 <span className="text-gray-400 text-sm">Teknik Destek</span>
               </li>
-              <li>
-                <span className="text-gray-400 text-sm">Özel İçerik Geliştirme</span>
-              </li>
+            
             </ul>
           </div>
 
@@ -88,7 +86,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                <span className="text-gray-400 text-sm">+90 212 555 0123</span>
+                <span className="text-gray-400 text-sm">+90 850 228 7574</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />

@@ -15,26 +15,26 @@ const HomePage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const platformCards = [{
-    name: 'Meta Quest 3',
-    icon: 'Sparkles',
-    color: 'from-blue-500 to-cyan-500',
-    description: 'Standalone premium VR'
-  }, {
-    name: 'HTC Vive XR',
-    icon: 'Box',
-    color: 'from-green-500 to-emerald-500',
-    description: 'Profesyonel XR çözümü'
-  }, {
-    name: 'PlayStation VR2',
-    icon: 'Gamepad2',
-    color: 'from-purple-500 to-pink-500',
-    description: 'Oyun odaklı deneyim'
-  }, {
-    name: 'Samsung Gear',
-    icon: 'Smartphone',
-    color: 'from-orange-500 to-red-500',
-    description: 'Mobil VR çözümü'
-  }];
+  name: 'Apple Vision Pro',
+  icon: 'Sparkles',
+  color: 'from-purple-500 to-pink-500',
+  description: 'Spatial computing'
+}, {
+  name: 'Meta Quest 3',
+  icon: 'Box',
+  color: 'from-blue-500 to-cyan-500',
+  description: 'Mixed reality VR'
+}, {
+  name: 'PlayStation VR2',
+  icon: 'Gamepad2',
+  color: 'from-indigo-500 to-purple-500',
+  description: 'PS5 exclusive VR'
+}, {
+  name: 'HTC Vive XR Elite',
+  icon: 'Zap',
+  color: 'from-green-500 to-emerald-500',
+  description: 'Profesyonel XR'
+}];
   const whyUsFeatures = [{
     icon: 'Zap',
     title: 'Hızlı Kurulum',
