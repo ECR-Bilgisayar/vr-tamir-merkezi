@@ -2,7 +2,7 @@ export const products = [
   {
     id: 1,
     name: 'Meta Quest 3',
-    category: 'meta',
+    category: 'headset',
     image: '/meta-quest-3.jpg',
     description: 'Meta Quest 3 tamir ve bakım hizmetleri',
     features: [
@@ -17,7 +17,7 @@ export const products = [
   {
     id: 2,
     name: 'Meta Quest 2',
-    category: 'meta',
+    category: 'headset',
     image: '/meta-quest-2.jpg',
     description: 'Meta Quest 2 tamir ve bakım hizmetleri',
     features: [
@@ -32,8 +32,8 @@ export const products = [
   {
     id: 3,
     name: 'Meta Quest Pro',
-    category: 'meta',
-    image: '/meta-quest-3.jpg',
+    category: 'headset',
+    image: '/meta-quest-pro.png',
     description: 'Meta Quest Pro tamir ve bakım hizmetleri',
     features: [
       'Ekran Sorunları',
@@ -47,7 +47,7 @@ export const products = [
   {
     id: 4,
     name: 'Meta Quest 3S',
-    category: 'meta',
+    category: 'headset',
     image: '/meta-quest-3s.jpg',
     description: 'Meta Quest 3S tamir ve bakım hizmetleri',
     features: [
@@ -62,7 +62,7 @@ export const products = [
   {
     id: 5,
     name: 'Oculus Rift',
-    category: 'oculus',
+    category: 'headset',
     image: '/oculus-rift.jpg',
     description: 'Oculus Rift tamir ve bakım hizmetleri',
     features: [
@@ -77,7 +77,7 @@ export const products = [
   {
     id: 6,
     name: 'HTC Vive Pro',
-    category: 'htc',
+    category: 'headset',
     image: '/htc-vive-pro.png',
     description: 'HTC Vive Pro tamir ve bakım hizmetleri',
     features: [
@@ -92,7 +92,7 @@ export const products = [
   {
     id: 7,
     name: 'HTC Vive',
-    category: 'htc',
+    category: 'headset',
     image: '/htc-vive.jpg',
     description: 'HTC Vive tamir ve bakım hizmetleri',
     features: [
@@ -107,7 +107,7 @@ export const products = [
   {
     id: 8,
     name: 'HTC Vive XR Elite',
-    category: 'htc',
+    category: 'headset',
     image: '/htc-vive-xr-elite.jpg',
     description: 'HTC Vive XR Elite tamir ve bakım hizmetleri',
     features: [
@@ -122,7 +122,7 @@ export const products = [
   {
     id: 9,
     name: 'PlayStation VR2',
-    category: 'playstation',
+    category: 'headset',
     image: '/playstation-vr-2.jpg',
     description: 'PlayStation VR2 tamir ve bakım hizmetleri',
     features: [
@@ -137,7 +137,7 @@ export const products = [
   {
     id: 10,
     name: 'Apple Vision Pro',
-    category: 'apple',
+    category: 'headset',
     image: '/apple-vision-pro.jpg',
     description: 'Apple Vision Pro tamir ve bakım hizmetleri',
     features: [

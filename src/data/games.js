@@ -24,7 +24,7 @@ export const games = [
     ageRating: '7+',
     image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=80',
     description: 'NBA deneyimini VR\'da yaşayın. Basketbol sahalarında gerçekçi atışlar yapın.',
-    videoUrl: 'https://www.youtube.com/embed/6J3p4lyGJUQ',
+    videoUrl: 'https://www.youtube.com/embed/6xP04kOiRRs?si=f5rqfCiBz_UDGKcv',
     scenario: 'Fuar',
     playArea: '2.5m x 2.5m',
     difficulty: 'Kolay'
@@ -38,7 +38,7 @@ export const games = [
     ageRating: '7+',
     image: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=800&q=80',
     description: 'Klasik mobil oyunun VR versiyonu. Meyve doğramaca.',
-    videoUrl: 'https://www.youtube.com/embed/hE9NfEEZNK0',
+    videoUrl: 'https://www.youtube.com/embed/hPY4TRRHwZc?si=zgRV9WRqnyrcZbul',
     scenario: 'AVM',
     playArea: '2m x 2m',
     difficulty: 'Kolay'
@@ -52,7 +52,7 @@ export const games = [
     ageRating: '7+',
     image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',
     description: 'Kafayla futbol topu vurma oyunu. Eğlenceli ve komik futbol deneyimi.',
-    videoUrl: 'https://www.youtube.com/embed/qGOVtyGqrz4',
+    videoUrl: 'https://www.youtube.com/embed/L-fNh6WkgdM?si=B1UKzYaFX2egkoAF',
     scenario: 'AVM',
     playArea: '2m x 2m',
     difficulty: 'Kolay'
@@ -66,7 +66,7 @@ export const games = [
     ageRating: '7+',
     image: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=800&q=80',
     description: 'Gerçekçi lunapark simülasyonu. Adrenalin dolu hız treni deneyimi.',
-    videoUrl: 'https://www.youtube.com/embed/PaJPkJLwsV8',
+    videoUrl: 'https://www.youtube.com/embed/sbJYjk_3S-o?si=3wkUOfMAzGUaJ3Tj',
     scenario: 'Fuar',
     playArea: '2m x 2m',
     difficulty: 'Kolay'
@@ -108,7 +108,7 @@ export const games = [
     ageRating: '7+',
     image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&q=80',
     description: 'VR futbol simülasyonu. Kalecilik ve penaltı atışları yapın.',
-    videoUrl: 'https://www.youtube.com/embed/3jlsJyqGkRI',
+    videoUrl: 'https://www.youtube.com/embed/f8BOQEySXjE?si=aXNqfHxhMSOH495U',
     scenario: 'AVM',
     playArea: '2m x 2m',
     difficulty: 'Kolay'
