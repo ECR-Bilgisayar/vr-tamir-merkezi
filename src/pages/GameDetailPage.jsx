@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -16,9 +15,9 @@ const GameDetailPage = () => {
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-[#0a0e27] flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0e27] flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Oyun Bulunamadı</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Oyun Bulunamadı</h2>
           <Link to="/oyunlar">
             <Button>Oyunlara Dön</Button>
           </Link>
@@ -45,10 +44,10 @@ const GameDetailPage = () => {
         <meta name="description" content={game.description} />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0e27] via-black to-[#0a0e27] py-16">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to="/oyunlar">
-            <Button variant="ghost" className="mb-8 text-purple-400 hover:text-purple-300">
+            <Button variant="ghost" className="mb-8 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Oyunlara Dön
             </Button>
@@ -59,7 +58,7 @@ const GameDetailPage = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative rounded-3xl overflow-hidden border border-white/10 group cursor-pointer"
+              className="relative rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10 group cursor-pointer shadow-lg dark:shadow-none"
               onClick={() => setIsVideoOpen(true)}
             >
               <img
@@ -82,29 +81,29 @@ const GameDetailPage = () => {
               className="space-y-6"
             >
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 text-sm font-medium mb-4">
                   {game.category === 'action' ? 'Aksiyon' : 
                    game.category === 'puzzle' ? 'Bulmaca' : 
                    game.category === 'sports' ? 'Spor' : 'Macera'}
                 </span>
-                <h1 className="text-4xl font-bold text-white mb-4">{game.name}</h1>
-                <p className="text-gray-300 text-lg mb-6">{game.description}</p>
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{game.name}</h1>
+                <p className="text-gray-600 dark:text-gray-300 text-lg mb-6">{game.description}</p>
 
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
-                    <Users className="w-5 h-5 text-purple-400" />
-                    <span className="text-gray-400">Yaş Sınırı:</span>
-                    <span className="text-white font-semibold">{game.ageRating}</span>
+                    <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-gray-500 dark:text-gray-400">Yaş Sınırı:</span>
+                    <span className="text-gray-900 dark:text-white font-semibold">{game.ageRating}</span>
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <MapPin className="w-5 h-5 text-purple-400" />
-                    <span className="text-gray-400">Oyun Alanı:</span>
-                    <span className="text-white font-semibold">{game.playArea}</span>
+                    <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-gray-500 dark:text-gray-400">Oyun Alanı:</span>
+                    <span className="text-gray-900 dark:text-white font-semibold">{game.playArea}</span>
                   </div>
 
                   <div>
-                    <span className="text-gray-400 block mb-2">Desteklenen Platformlar:</span>
+                    <span className="text-gray-500 dark:text-gray-400 block mb-2">Desteklenen Platformlar:</span>
                     <div className="flex flex-wrap gap-2">
                       {game.platform.map((platform) => (
                         <span
@@ -118,15 +117,15 @@ const GameDetailPage = () => {
                   </div>
 
                   <div>
-                    <span className="text-gray-400 block mb-2">Önerilen Senaryo:</span>
-                    <span className="inline-block px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 font-semibold">
+                    <span className="text-gray-500 dark:text-gray-400 block mb-2">Önerilen Senaryo:</span>
+                    <span className="inline-block px-4 py-2 rounded-lg bg-purple-100 dark:bg-gradient-to-r dark:from-purple-500/20 dark:to-blue-500/20 text-purple-600 dark:text-purple-300 font-semibold">
                       {game.scenario}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-gray-400 block mb-2">Zorluk Seviyesi:</span>
-                    <span className="text-white font-semibold">{game.difficulty}</span>
+                    <span className="text-gray-500 dark:text-gray-400 block mb-2">Zorluk Seviyesi:</span>
+                    <span className="text-gray-900 dark:text-white font-semibold">{game.difficulty}</span>
                   </div>
                 </div>
               </div>
@@ -141,7 +140,7 @@ const GameDetailPage = () => {
                   Oynanış Videosunu İzle
                 </Button>
                 <Link to="/iletisim" className="block">
-                  <Button size="lg" variant="outline" className="w-full border-2 border-purple-500/50 hover:bg-purple-500/10 text-white font-semibold">
+                  <Button size="lg" variant="outline" className="w-full border-2 border-purple-500/50 hover:bg-purple-100 dark:hover:bg-purple-500/10 text-purple-600 dark:text-white font-semibold">
                     Bu Oyunla Teklif Al
                   </Button>
                 </Link>
@@ -151,7 +150,7 @@ const GameDetailPage = () => {
 
           {relatedGames.length > 0 && (
             <div>
-              <h2 className="text-3xl font-bold text-white mb-8">Benzer Oyunlar</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Benzer Oyunlar</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedGames.map((relatedGame, index) => (
                   <GameCard

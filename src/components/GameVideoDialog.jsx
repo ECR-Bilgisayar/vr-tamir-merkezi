@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -12,13 +11,13 @@ const GameVideoDialog = ({ game, open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl bg-[#0a0e27] border-white/10">
+      <DialogContent className="max-w-4xl bg-white dark:bg-[#0a0e27] border-gray-200 dark:border-white/10">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white">
+          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
             {game.name}
           </DialogTitle>
         </DialogHeader>
-        <div className="aspect-video w-full rounded-lg overflow-hidden">
+        <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-black/50">
           <iframe
             width="100%"
             height="100%"

@@ -1,6 +1,6 @@
 
 export const games = [
-  // ÖNCELİKLİ OYUNLAR (Önce gelecekler)
+
   {
     id: 1,
     slug: 'beat-saber',

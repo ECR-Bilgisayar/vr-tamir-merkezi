@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Accordion,
@@ -11,7 +10,7 @@ const FAQAccordion = () => {
   const faqs = [
     {
       question: 'VR başlıklarını kaç gün önceden rezerve etmeliyim?',
-      answer: 'Etkinliğinizden en az 1 hafta önce rezervasyon yapmanızı öneriyoriz. Ancak müsaitlik durumuna göre son dakika rezervasyonları da kabul edebiliyoruz.'
+      answer: 'Etkinliğinizden en az 1 hafta önce rezervasyon yapmanızı öneriyoruz. Ancak müsaitlik durumuna göre son dakika rezervasyonları da kabul edebiliyoruz.'
     },
     {
       question: 'Kurulum ve teknik destek dahil mi?',
@@ -51,10 +50,10 @@ const FAQAccordion = () => {
           value={`item-${index}`}
           className="rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm px-6 data-[state=open]:border-purple-500/30"
         >
-          <AccordionTrigger className="text-white hover:text-purple-400 text-left font-semibold py-4">
+          <AccordionTrigger className="text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 text-left font-semibold py-4">
             {faq.question}
           </AccordionTrigger>
-          <AccordionContent className="text-gray-400 pb-4">
+          <AccordionContent className="text-gray-700 dark:text-gray-400 pb-4">
             {faq.answer}
           </AccordionContent>
         </AccordionItem>

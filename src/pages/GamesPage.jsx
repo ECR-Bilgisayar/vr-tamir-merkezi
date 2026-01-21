@@ -22,14 +22,15 @@ const GamesPage = () => {
         <meta name="description" content="Beat Saber, Superhot VR, Job Simulator ve 100'den fazla VR oyunu. Her yaş ve ilgi alanına uygun zengin VR oyun kütüphanesi." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0e27] via-black to-[#0a0e27] py-16">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="100+ VR Oyunu ve Deneyim"
             description="Her yaşa ve ilgi alanına uygun zengin VR içerik kataloğu"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Games Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {games.map((game, index) => (
               <GameCard
                 key={game.id}

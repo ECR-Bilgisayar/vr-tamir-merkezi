@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
@@ -24,7 +23,7 @@ const Testimonials = () => {
 
           <Quote className="w-8 h-8 text-purple-400/30 mb-3" />
 
-          <p className="text-gray-300 text-sm mb-6 italic">
+          <p className="text-gray-700 dark:text-gray-300 text-sm mb-6 italic">
             "{testimonial.text}"
           </p>
 
@@ -35,9 +34,9 @@ const Testimonials = () => {
               className="w-12 h-12 rounded-full object-cover"
             />
             <div>
-              <p className="text-white font-semibold">{testimonial.name}</p>
-              <p className="text-gray-400 text-xs">{testimonial.role}</p>
-              <p className="text-purple-400 text-xs">{testimonial.company}</p>
+              <p className="text-gray-900 dark:text-white font-semibold">{testimonial.name}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-xs">{testimonial.role}</p>
+              <p className="text-purple-600 dark:text-purple-400 text-xs">{testimonial.company}</p>
             </div>
           </div>
         </motion.div>

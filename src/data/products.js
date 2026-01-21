@@ -1,5 +1,21 @@
 export const products = [
   {
+    id: 10,
+    name: 'Apple Vision Pro',
+    category: 'headset',
+    image: '/apple-vision-pro.jpg',
+    description: 'Apple Vision Pro tamir ve bakım hizmetleri',
+    features: [
+      'Ekran Sorunları',
+      'Bağlantı Sorunları',
+      'Pil Değişimi',
+      'Ses Sistemi Onarımı',
+      'Yazılım Sorunları'
+    ],
+    stock: 'available',
+    purchasable: false
+  },
+  {
     id: 1,
     name: 'Meta Quest 3',
     category: 'headset',
@@ -12,22 +28,8 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
-  },
-  {
-    id: 2,
-    name: 'Meta Quest 2',
-    category: 'headset',
-    image: '/meta-quest-2.jpg',
-    description: 'Meta Quest 2 tamir ve bakım hizmetleri',
-    features: [
-      'Ekran Sorunları',
-      'Bağlantı Sorunları',
-      'Pil Değişimi',
-      'Kontrol Cihazı Onarımı',
-      'Yazılım Sorunları'
-    ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
   },
   {
     id: 3,
@@ -42,7 +44,25 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
+  },
+  {
+    id: 100,
+    name: 'Tek Kullanımlık VR Hijyen Bandı',
+    category: 'accessory',
+    image: '/hijyen-bandi.png',
+    description: 'VR deneyiminizi hijyenik tutun! Tek kullanımlık hijyen bandı ile cihazınızı ve cildinizi koruyun.',
+    features: [
+      'Tek kullanımlık ve hijyenik',
+      'Tüm VR başlıklarıyla uyumlu',
+      'Yumuşak ve rahat malzeme',
+      'Ter emici özellik',
+      '100 adet paket'
+    ],
+    stock: 'available',
+    purchasable: true,
+    price: 799
   },
   {
     id: 4,
@@ -57,7 +77,24 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
+  },
+  {
+    id: 2,
+    name: 'Meta Quest 2',
+    category: 'headset',
+    image: '/meta-quest-2.jpg',
+    description: 'Meta Quest 2 tamir ve bakım hizmetleri',
+    features: [
+      'Ekran Sorunları',
+      'Bağlantı Sorunları',
+      'Pil Değişimi',
+      'Kontrol Cihazı Onarımı',
+      'Yazılım Sorunları'
+    ],
+    stock: 'available',
+    purchasable: false
   },
   {
     id: 5,
@@ -72,7 +109,25 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
+  },
+  {
+    id: 101,
+    name: 'Tek Kullanımlık VR Hijyen Bandı',
+    category: 'accessory',
+    image: '/hijyen-bandi.png',
+    description: 'VR deneyiminizi hijyenik tutun! Tek kullanımlık hijyen bandı ile cihazınızı ve cildinizi koruyun.',
+    features: [
+      'Tek kullanımlık ve hijyenik',
+      'Tüm VR başlıklarıyla uyumlu',
+      'Yumuşak ve rahat malzeme',
+      'Ter emici özellik',
+      '50 adet paket'
+    ],
+    stock: 'available',
+    purchasable: true,
+    price: 799
   },
   {
     id: 6,
@@ -87,7 +142,8 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
   },
   {
     id: 7,
@@ -102,7 +158,8 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
   },
   {
     id: 8,
@@ -117,7 +174,8 @@ export const products = [
       'Kontrol Cihazı Onarımı',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
   },
   {
     id: 9,
@@ -132,21 +190,7 @@ export const products = [
       'Kablo Değişimi',
       'Yazılım Sorunları'
     ],
-    stock: 'available'
-  },
-  {
-    id: 10,
-    name: 'Apple Vision Pro',
-    category: 'headset',
-    image: '/apple-vision-pro.jpg',
-    description: 'Apple Vision Pro tamir ve bakım hizmetleri',
-    features: [
-      'Ekran Sorunları',
-      'Bağlantı Sorunları',
-      'Pil Değişimi',
-      'Ses Sistemi Onarımı',
-      'Yazılım Sorunları'
-    ],
-    stock: 'available'
+    stock: 'available',
+    purchasable: false
   }
 ];
