@@ -11,7 +11,7 @@ const MainLayout = ({ children }) => {
         {children}
       </main>
       <Footer />
-      <CTAFloatButton />
+      
     </div>
   );
 };

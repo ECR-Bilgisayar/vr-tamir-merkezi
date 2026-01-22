@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -22,17 +22,29 @@ const Footer = () => {
               Türkiye'nin lider VR Tamir ve kiralama platformu. Kurumsal etkinlikler, fuarlar ve özel organizasyonlar için profesyonel VR çözümleri.
             </p>
             <div className="flex space-x-3">
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all">
+              <a
+                href="https://www.facebook.com/etkinlikbilgisayar/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"
+              >
                 <Facebook className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all">
+              <a
+                href="https://x.com/ecrbilisim"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"
+              >
                 <Twitter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all">
+              <a
+                href="https://www.instagram.com/etkinlikbilgisayar/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"
+              >
                 <Instagram className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all">
-                <Linkedin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </a>
             </div>
           </div>
@@ -86,7 +98,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-600 dark:text-gray-400 text-sm">İstoç, 32. Ada No:76-78, Bağcılar, İstanbul</span>
+                <span className="text-gray-600 dark:text-gray-400 text-sm">İstoç, 32. Ada No:78-80, Bağcılar, İstanbul</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
@@ -103,7 +115,7 @@ const Footer = () => {
         <div className="pt-8 border-t border-gray-300 dark:border-white/5">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 dark:text-gray-500 text-sm">
-              © {currentYear} VR Kiralama. Tüm hakları saklıdır.
+              © {currentYear} VR Tamir Merkezi. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-6">
               <Link to="#" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
