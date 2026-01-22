@@ -13,12 +13,14 @@ const AdminLoginPage = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const API_URL = import.meta.env.VITE_API_URL || '';
+
     // Check if already logged in
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (token) {
             // Verify token
-            fetch('/api/admin/verify', {
+            fetch(`${API_URL}/api/admin/verify`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(res => {
@@ -38,7 +40,7 @@ const AdminLoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/admin/login', {
+            const response = await fetch(`${API_URL}/api/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),

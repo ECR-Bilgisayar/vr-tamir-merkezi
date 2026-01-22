@@ -76,7 +76,8 @@ const KiralaPage = () => {
         callbackPreference: data.callbackPreference || false
       };
 
-      const response = await fetch('/api/rental-requests', {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/rental-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,8 +150,8 @@ const KiralaPage = () => {
                       key={product.id}
                       onClick={() => handleProductSelect(product)}
                       className={`cursor-pointer p-4 rounded-xl border transition-all ${selections.product?.id === product.id
-                          ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500'
-                          : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500/50'
+                        ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500'
+                        : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500/50'
                         }`}
                     >
                       <div className="flex items-center space-x-4">
@@ -175,8 +176,8 @@ const KiralaPage = () => {
                       key={qty}
                       onClick={() => handleQuantitySelect(qty)}
                       className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${selections.quantity === qty
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
                         }`}
                     >
                       {qty} Adet
@@ -200,8 +201,8 @@ const KiralaPage = () => {
                       key={day}
                       onClick={() => handleDurationSelect(day)}
                       className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${selections.duration === day
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
                         }`}
                     >
                       {day} Gün

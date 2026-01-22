@@ -105,7 +105,8 @@ const ServisPage = () => {
         callbackPreference: submittedData.callbackPreference || false
       };
 
-      const response = await fetch('/api/service-requests', {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/service-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -259,8 +260,8 @@ const ServisPage = () => {
                         key={device}
                         onClick={() => handleDeviceSelect(device)}
                         className={`p-4 rounded-xl border transition-all text-left font-semibold flex justify-between items-center group ${formData.device === device
-                            ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300'
-                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 text-gray-900 dark:text-white'
+                          ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300'
+                          : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 text-gray-900 dark:text-white'
                           }`}
                       >
                         {device}

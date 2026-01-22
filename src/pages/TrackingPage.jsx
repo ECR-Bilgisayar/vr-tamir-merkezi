@@ -35,7 +35,8 @@ const TrackingPage = () => {
         setResult(null);
 
         try {
-            const response = await fetch(`/api/service-requests/track/${trackingId.trim()}`);
+            const API_URL = import.meta.env.VITE_API_URL || '';
+            const response = await fetch(`${API_URL}/api/service-requests/track/${trackingId.trim()}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -196,10 +197,10 @@ const TrackingPage = () => {
                                             return (
                                                 <div key={status} className="relative flex items-start gap-4 pl-10">
                                                     <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isCurrent
-                                                            ? `${config.color} ring-4 ring-purple-500/30`
-                                                            : isActive
-                                                                ? config.color
-                                                                : 'bg-gray-200 dark:bg-white/10'
+                                                        ? `${config.color} ring-4 ring-purple-500/30`
+                                                        : isActive
+                                                            ? config.color
+                                                            : 'bg-gray-200 dark:bg-white/10'
                                                         }`}>
                                                         <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                                                     </div>
