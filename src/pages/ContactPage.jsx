@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import SectionHeading from '@/components/SectionHeading';
 
+
 const ContactPage = () => {
   return (
     <>
@@ -12,12 +13,14 @@ const ContactPage = () => {
         <meta name="description" content="İletişim bilgilerimiz ve çalışma saatlerimiz." />
       </Helmet>
 
+
       <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="İletişim Bilgileri"
             description="Sorularınız için bizimle iletişime geçebilirsiniz"
           />
+
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
             
@@ -54,13 +57,22 @@ const ContactPage = () => {
                  </div>
               </div>
 
-              {/* Map Placeholder */}
-              <div className="h-64 rounded-3xl bg-white dark:bg-[#0d1229] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none flex items-center justify-center relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10" />
-                 <MapPin className="w-12 h-12 text-gray-400 dark:text-gray-500 group-hover:text-purple-400 transition-colors z-10" />
-                 <span className="ml-2 text-gray-500 dark:text-gray-500 z-10">Harita Yükleniyor...</span>
+
+              {/* Map */}
+              <div className="h-64 rounded-3xl bg-white dark:bg-[#0d1229] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3008.1295429871757!2d28.815236011547885!3d41.066160915739346!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa5707d5dea65%3A0x666cd2100159dab3!2sEtkinlik%20Bilgisayar!5e0!3m2!1str!2str!4v1769072713327!5m2!1str!2str"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="VR Tamir Merkezi Konum"
+                />
               </div>
             </motion.div>
+
 
             {/* Working Hours */}
             <motion.div 
@@ -90,6 +102,7 @@ const ContactPage = () => {
                 ))}
               </div>
 
+
               <div className="mt-8 p-4 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-200 dark:border-purple-500/20">
                 <p className="text-sm text-purple-700 dark:text-purple-200 text-center">
                   * Resmi tatillerde çalışma saatlerimiz değişiklik gösterebilir.
@@ -97,11 +110,13 @@ const ContactPage = () => {
               </div>
             </motion.div>
 
+
           </div>
         </div>
       </div>
     </>
   );
 };
+
 
 export default ContactPage;

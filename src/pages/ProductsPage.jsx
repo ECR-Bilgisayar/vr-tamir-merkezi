@@ -151,11 +151,7 @@ const ProductsPage = () => {
                       Tamir Desteği
                     </div>
                   )}
-                  {!product.purchasable && !isRepairSupported(product) && (
-                    <div className="absolute top-3 right-3 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
-                      Bilgi
-                    </div>
-                  )}
+                  
                 </div>
 
                 <div className="p-5 bg-white dark:bg-transparent">
