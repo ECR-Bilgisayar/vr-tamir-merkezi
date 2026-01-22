@@ -4,7 +4,7 @@ import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-r
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="bg-gradient-to-b from-gray-100 to-gray-200 dark:from-[#0a0e27] dark:to-black border-t border-gray-300 dark:border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -23,7 +23,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-3">
               <a
-                href="https://www.facebook.com/etkinlikbilgisayar/"
+                href="https://www.facebook.com/vrtamirmerkezi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"
@@ -31,7 +31,7 @@ const Footer = () => {
                 <Facebook className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </a>
               <a
-                href="https://x.com/ecrbilisim"
+                href="https://x.com/vrtamirmerkezi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"
@@ -39,7 +39,7 @@ const Footer = () => {
                 <Twitter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </a>
               <a
-                href="https://www.instagram.com/etkinlikbilgisayar/"
+                href="https://www.instagram.com/vrtamirmerkezi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-purple-500/20 flex items-center justify-center transition-all"

@@ -36,7 +36,6 @@ const Testimonials = () => {
             <div>
               <p className="text-gray-900 dark:text-white font-semibold">{testimonial.name}</p>
               <p className="text-gray-600 dark:text-gray-400 text-xs">{testimonial.role}</p>
-              <p className="text-purple-600 dark:text-purple-400 text-xs">{testimonial.company}</p>
             </div>
           </div>
         </motion.div>
