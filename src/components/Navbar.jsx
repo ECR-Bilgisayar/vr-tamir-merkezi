@@ -31,62 +31,103 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-lg shadow-lg dark:shadow-purple-500/10' 
-          : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-lg shadow-lg dark:shadow-purple-500/10'
+        : 'bg-transparent'
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link to="/" className="flex items-center space-x-2 group">
+          <Link to="/" className="flex items-center group">
+            {/* Desktop: Full Logo with Text */}
             <motion.div
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.6 }}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+              className="hidden sm:flex items-center"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
             >
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <img
+                src="/logo.png"
+                alt="VR Tamir Merkezi"
+                className="h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-lg"
+              />
             </motion.div>
-            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              VR Tamir Merkezi
-            </span>
+
+            {/* Mobile: Only Logo Icon */}
+            <motion.div
+              className="sm:hidden flex items-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
+              <img
+                src="/sadece-logo.png"
+                alt="VR Tamir Merkezi"
+                className="h-10 w-auto object-contain drop-shadow-lg"
+              />
+            </motion.div>
           </Link>
 
-          <div className="hidden lg:flex items-center space-x-1">
-            {navLinks.map(link => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  location.pathname === link.path
-                    ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-600 dark:text-purple-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center">
+            <div className="flex items-center bg-gray-100/80 dark:bg-white/5 backdrop-blur-sm rounded-full p-1 border border-gray-200/50 dark:border-white/10">
+              {navLinks.map(link => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${location.pathname === link.path
+                    ? 'text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                >
+                  {location.pathname === link.path && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-lg shadow-purple-500/30"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.name}</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="hidden lg:flex items-center space-x-4">
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center space-x-3">
             {/* Theme Toggle Button */}
-            <button
+            <motion.button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative p-2.5 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200 border border-gray-200/50 dark:border-white/10"
               aria-label="Toggle theme"
             >
-              {theme === 'dark' ? (
-                <Sun className="w-7 h-5 text-yellow-500" />
-              ) : (
-                <Moon className="w-7 h-5 text-gray-700" />
-              )}
-            </button>
+              <motion.div
+                initial={false}
+                animate={{ rotate: theme === 'dark' ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 text-yellow-500" />
+                ) : (
+                  <Moon className="w-5 h-5 text-gray-700" />
+                )}
+              </motion.div>
+            </motion.button>
 
-            
+            {/* CTA Button */}
             <Link to="/servis">
-              <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold shadow-lg shadow-purple-500/30">
-                Servis & Onarım
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button className="relative overflow-hidden bg-gradient-to-r from-purple-500 via-purple-600 to-blue-500 hover:from-purple-600 hover:via-purple-700 hover:to-blue-600 text-white font-semibold px-6 py-2.5 shadow-lg shadow-purple-500/30 border border-white/20">
+                  <span className="relative z-10 flex items-center gap-2">
+                    Servis & Onarım
+                  </span>
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+                </Button>
+              </motion.div>
             </Link>
           </div>
 
@@ -117,11 +158,10 @@ const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    location.pathname === link.path
-                      ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-600 dark:text-purple-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
-                  }`}
+                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${location.pathname === link.path
+                    ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-600 dark:text-purple-300'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
+                    }`}
                 >
                   {link.name}
                 </Link>
