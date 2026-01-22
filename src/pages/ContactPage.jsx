@@ -36,7 +36,7 @@ const ContactPage = () => {
                          <span className="block text-gray-900 dark:text-white font-medium">Adres</span>
                          <span className="text-gray-600 dark:text-gray-400">İstoç, 32. Ada No:78-80,<br/>Bağcılar, İstanbul</span>
                        </div>
-                    </div>
+                    </div>a
                     <div className="flex items-start space-x-4">
                        <Phone className="w-6 h-6 text-purple-500 mt-1" />
                        <div>
