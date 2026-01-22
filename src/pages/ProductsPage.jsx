@@ -51,8 +51,8 @@ const ProductsPage = () => {
       <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            title="Tamir Hizmetlerimiz"
-            description="Tüm VR cihazlarınız için profesyonel onarım hizmeti"
+            title="VR Dünyası"
+            description="VR Dünyası ve oyunları ile ilgili detaylı bilgi için aşağı kaydırabilirsiniz. "
           />
 
           {/* Products Grid */}
