@@ -293,39 +293,7 @@ const HomePage = () => {
             ))}
           </div>
 
-          {/* Bottom Stats/Trust Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-            {[
-              { value: "1000+", label: "Cihaz Onarıldı", icon: Wrench },
-              { value: "%98", label: "Müşteri Memnuniyeti", icon: Users },
-              { value: "24-48", label: "Saat Onarım Süresi", icon: Zap },
-              { value: "6 Ay", label: "Garanti Süresi", icon: Shield },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative text-center p-6 rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10">
-                  <stat.icon className="w-6 h-6 mx-auto mb-3 text-purple-600 dark:text-purple-400" />
-                  <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{stat.label}</div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+
         </div>
       </section>
 
