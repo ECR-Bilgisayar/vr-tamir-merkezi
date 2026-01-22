@@ -79,16 +79,22 @@ const Footer = () => {
             <h3 className="text-gray-900 dark:text-white font-semibold mb-4">Hizmetler</h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">VR Servis & Onarım</span>
+                <Link to="/servis" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+                  VR Servis & Onarım
+                </Link>
+              </li>
+              <li>
+                <Link to="/takip" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+                  🔍 Servis Takip
+                </Link>
+              </li>
+              <li>
+                <Link to="/kirala" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+                  VR Gözlük Kiralama
+                </Link>
               </li>
               <li>
                 <span className="text-gray-600 dark:text-gray-400 text-sm">Fuar & Etkinlik Desteği</span>
-              </li>
-              <li>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">VR Gözlük Kiralama</span>
-              </li>
-              <li>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">Teknik Destek</span>
               </li>
             </ul>
           </div>

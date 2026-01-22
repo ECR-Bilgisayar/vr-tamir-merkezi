@@ -9,8 +9,11 @@ import GameDetailPage from '@/pages/GameDetailPage';
 import CorporatePage from '@/pages/CorporatePage';
 import ContactPage from '@/pages/ContactPage';
 import AdminLeadsPage from '@/pages/AdminLeadsPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminPanelPage from '@/pages/AdminPanelPage';
 import KiralaPage from '@/pages/KiralaPage';
 import ServisPage from '@/pages/ServisPage';
+import TrackingPage from '@/pages/TrackingPage';
 import { Toaster } from '@/components/ui/toaster';
 import CheckoutPage from '@/pages/CheckoutPage';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -21,20 +24,30 @@ function App() {
     <ThemeProvider>
       <Router>
         <ScrollToTop />
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/urunler" element={<ProductsPage />} />
-            <Route path="/oyunlar" element={<GamesPage />} />
-            <Route path="/oyunlar/:slug" element={<GameDetailPage />} />
-            <Route path="/kurumsal" element={<CorporatePage />} />
-            <Route path="/iletisim" element={<ContactPage />} />
-            <Route path="/kirala" element={<KiralaPage />} />
-            <Route path="/servis" element={<ServisPage />} />
-            <Route path="/admin/leads" element={<AdminLeadsPage />} />
-            <Route path="/siparis" element={<CheckoutPage />} />
-          </Routes>
-        </MainLayout>
+        <Routes>
+          {/* Admin Routes - Without MainLayout */}
+          <Route path="/admin" element={<AdminLoginPage />} />
+          <Route path="/admin/panel" element={<AdminPanelPage />} />
+          <Route path="/admin/leads" element={<AdminLeadsPage />} />
+
+          {/* Main Site Routes - With MainLayout */}
+          <Route path="/*" element={
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/urunler" element={<ProductsPage />} />
+                <Route path="/oyunlar" element={<GamesPage />} />
+                <Route path="/oyunlar/:slug" element={<GameDetailPage />} />
+                <Route path="/kurumsal" element={<CorporatePage />} />
+                <Route path="/iletisim" element={<ContactPage />} />
+                <Route path="/kirala" element={<KiralaPage />} />
+                <Route path="/servis" element={<ServisPage />} />
+                <Route path="/takip" element={<TrackingPage />} />
+                <Route path="/siparis" element={<CheckoutPage />} />
+              </Routes>
+            </MainLayout>
+          } />
+        </Routes>
         <Toaster />
       </Router>
     </ThemeProvider>
@@ -43,3 +56,4 @@ function App() {
 
 
 export default App;
+

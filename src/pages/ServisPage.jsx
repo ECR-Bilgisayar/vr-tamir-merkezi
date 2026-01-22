@@ -91,25 +91,49 @@ const ServisPage = () => {
     nextStep();
   };
 
-  const handleFinalSubmit = () => {
-    const newServiceId = `SRV-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
-    setServiceId(newServiceId);
-    
-    const requestData = {
-      ...formData,
-      ...submittedData,
-      id: newServiceId,
-      createdAt: new Date().toISOString(),
-      status: 'pending'
-    };
+  const handleFinalSubmit = async () => {
+    try {
+      const requestData = {
+        fullName: submittedData.fullName,
+        email: submittedData.email,
+        phone: submittedData.phone,
+        device: formData.device,
+        customDevice: formData.customDevice,
+        faultType: formData.faultType,
+        faultDescription: submittedData.faultDescription,
+        deliveryMethod: formData.deliveryMethod,
+        callbackPreference: submittedData.callbackPreference || false
+      };
 
-    const existingRequests = JSON.parse(localStorage.getItem('serviceRequests') || '[]');
-    localStorage.setItem('serviceRequests', JSON.stringify([...existingRequests, requestData]));
+      const response = await fetch('/api/service-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
 
-    toast({
-      title: "Talep Oluşturuldu! 🛠️",
-      description: `Servis talebiniz alındı. Takip No: ${newServiceId}`,
-    });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Bir hata oluştu');
+      }
+
+      setServiceId(result.data.serviceId);
+
+      toast({
+        title: "Talep Oluşturuldu! 🛠️",
+        description: `Servis talebiniz alındı. Takip No: ${result.data.serviceId}`,
+      });
+
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast({
+        title: "Hata!",
+        description: error.message || "Talep oluşturulamadı. Lütfen tekrar deneyin.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getDeviceName = () => {
@@ -137,7 +161,7 @@ const ServisPage = () => {
           {/* Talep Detayları */}
           <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-xl space-y-4 border border-gray-200 dark:border-white/10 mb-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4">Talep Detayları</h3>
-            
+
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-500 dark:text-gray-400 block">Ad Soyad</span>
@@ -177,11 +201,11 @@ const ServisPage = () => {
               </p>
             </div>
           </div>
-          
+
           {formData.deliveryMethod === 'elden' && (
             <div className="bg-blue-50 dark:bg-blue-500/10 p-4 rounded-xl mb-6 border border-blue-200 dark:border-blue-500/20">
               <h4 className="font-semibold text-blue-800 dark:text-blue-300 flex items-center mb-2">
-                <MapPin className="w-4 h-4 mr-2"/> Teslimat Noktası
+                <MapPin className="w-4 h-4 mr-2" /> Teslimat Noktası
               </h4>
               <p className="text-sm text-blue-700 dark:text-blue-300">İstoç, 32. Ada No:76-78, Bağcılar, İstanbul</p>
               <p className="text-sm text-blue-600 dark:text-blue-400">09:00 - 18:00 (Hafta içi)</p>
@@ -191,7 +215,7 @@ const ServisPage = () => {
           {formData.deliveryMethod === 'kargo' && (
             <div className="bg-amber-50 dark:bg-amber-500/10 p-4 rounded-xl mb-6 border border-amber-200 dark:border-amber-500/20">
               <h4 className="font-semibold text-amber-800 dark:text-amber-300 flex items-center mb-2">
-                <Truck className="w-4 h-4 mr-2"/> Kargo Bilgileri
+                <Truck className="w-4 h-4 mr-2" /> Kargo Bilgileri
               </h4>
               <p className="text-sm text-amber-700 dark:text-amber-300">Kargo adresimiz e-posta ile tarafınıza iletilecektir.</p>
               <p className="text-sm text-amber-600 dark:text-amber-400">Kargo ücretleri alıcı ödemeli gönderilmelidir.</p>
@@ -222,26 +246,25 @@ const ServisPage = () => {
           <StepProcess steps={['Cihaz', 'Arıza', 'Bilgiler', 'Teslimat', 'Onay']} currentStep={currentStep} />
 
           <div className="mt-8 bg-white dark:bg-[#0d1229] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none rounded-2xl p-8 min-h-[400px]">
-            
+
             {/* Step 1: Cihaz Seçimi */}
             {currentStep === 1 && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">Hangi cihaz için servis istiyorsunuz?</h3>
-                
+
                 {formData.device !== 'Diğer' ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {devices.map(device => (
                       <button
                         key={device}
                         onClick={() => handleDeviceSelect(device)}
-                        className={`p-4 rounded-xl border transition-all text-left font-semibold flex justify-between items-center group ${
-                          formData.device === device
+                        className={`p-4 rounded-xl border transition-all text-left font-semibold flex justify-between items-center group ${formData.device === device
                             ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500 text-purple-700 dark:text-purple-300'
                             : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 text-gray-900 dark:text-white'
-                        }`}
+                          }`}
                       >
                         {device}
-                        <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-purple-500 dark:text-purple-400"/>
+                        <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-purple-500 dark:text-purple-400" />
                       </button>
                     ))}
                   </div>
@@ -258,19 +281,19 @@ const ServisPage = () => {
                       />
                     </div>
                     <div className="flex gap-4">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setFormData(prev => ({ ...prev, device: '', customDevice: '' }))}
                         className="flex-1 text-gray-700 dark:text-white border-gray-300 dark:border-white/20"
                       >
-                        <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                       </Button>
-                      <Button 
+                      <Button
                         onClick={handleCustomDeviceSubmit}
                         disabled={formData.customDevice.trim().length < 2}
                         className="flex-1 bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
                       >
-                        Devam Et <ArrowRight className="ml-2 h-4 w-4"/>
+                        Devam Et <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -290,13 +313,13 @@ const ServisPage = () => {
                       className="p-5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all text-left text-gray-900 dark:text-white font-semibold flex justify-between items-center group"
                     >
                       {fault}
-                      <Wrench className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500 dark:group-hover:text-purple-400"/>
+                      <Wrench className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500 dark:group-hover:text-purple-400" />
                     </button>
                   ))}
                 </div>
                 <div className="flex justify-center mt-6">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri Dön
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri Dön
                   </Button>
                 </div>
               </motion.div>
@@ -306,7 +329,7 @@ const ServisPage = () => {
             {currentStep === 3 && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">İletişim Bilgileri</h3>
-                
+
                 {/* Seçilen Cihaz ve Arıza */}
                 <div className="bg-purple-50 dark:bg-purple-500/10 p-4 rounded-xl border border-purple-200 dark:border-purple-500/20 mb-6">
                   <div className="flex flex-wrap gap-4 text-sm">
@@ -392,19 +415,19 @@ const ServisPage = () => {
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <Button 
+                    <Button
                       type="button"
-                      variant="outline" 
-                      onClick={prevStep} 
+                      variant="outline"
+                      onClick={prevStep}
                       className="flex-1 text-gray-700 dark:text-white border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5"
                     >
-                      <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                      <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                     </Button>
-                    <Button 
+                    <Button
                       type="submit"
                       className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                     >
-                      Devam Et <ArrowRight className="ml-2 h-4 w-4"/>
+                      Devam Et <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </form>
@@ -420,23 +443,23 @@ const ServisPage = () => {
                     onClick={() => handleDeliverySelect('kargo')}
                     className="p-8 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all text-center group"
                   >
-                    <Truck className="w-12 h-12 text-blue-500 dark:text-blue-400 mx-auto mb-4"/>
+                    <Truck className="w-12 h-12 text-blue-500 dark:text-blue-400 mx-auto mb-4" />
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Kargo ile Gönderim</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Kargo ücretleri müşteri tarafından karşılanacaktır.</p>
                   </button>
-                  
+
                   <button
                     onClick={() => handleDeliverySelect('elden')}
                     className="p-8 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all text-center group"
                   >
-                    <MapPin className="w-12 h-12 text-green-500 dark:text-green-400 mx-auto mb-4"/>
+                    <MapPin className="w-12 h-12 text-green-500 dark:text-green-400 mx-auto mb-4" />
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Elden Teslim</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Ofisimize gelerek cihazı teslim edebilirsiniz.</p>
                   </button>
                 </div>
                 <div className="flex justify-center mt-6">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri Dön
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri Dön
                   </Button>
                 </div>
               </motion.div>
@@ -446,7 +469,7 @@ const ServisPage = () => {
             {currentStep === 5 && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white text-center">Talebinizi Onaylayın</h3>
-                
+
                 <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-xl space-y-4 border border-gray-200 dark:border-white/10">
                   <h4 className="font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2">Kişisel Bilgiler</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -490,13 +513,13 @@ const ServisPage = () => {
                     </p>
                   </div>
                 </div>
-                 
+
                 <div className="flex items-center justify-center space-x-4">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                   </Button>
                   <Button onClick={handleFinalSubmit} className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 px-8">
-                    Tamir Talebi Oluştur <CheckCircle className="ml-2 h-4 w-4"/>
+                    Tamir Talebi Oluştur <CheckCircle className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </motion.div>

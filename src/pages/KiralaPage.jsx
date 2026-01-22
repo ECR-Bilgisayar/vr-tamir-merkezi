@@ -62,27 +62,51 @@ const KiralaPage = () => {
     }
   };
 
-  const onSubmit = (data) => {
-    const leadData = {
-      ...data,
-      rentalDetails: selections,
-      type: 'rental_request',
-      createdAt: new Date().toISOString()
-    };
-    
-    console.log('Rental Request:', leadData);
-    
-    const existingLeads = JSON.parse(localStorage.getItem('leads') || '[]');
-    localStorage.setItem('leads', JSON.stringify([...existingLeads, leadData]));
+  const onSubmit = async (data) => {
+    try {
+      const requestData = {
+        fullName: data.fullName,
+        company: data.company,
+        email: data.email,
+        phone: data.phone,
+        productName: selections.product?.name || '',
+        quantity: selections.quantity,
+        duration: selections.duration,
+        message: data.message,
+        callbackPreference: data.callbackPreference || false
+      };
 
-    toast({
-      title: "Talep Alındı! 🚀",
-      description: "Kiralama talebiniz başarıyla oluşturuldu. En kısa sürede dönüş yapacağız.",
-    });
+      const response = await fetch('/api/rental-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
 
-    reset();
-    setCurrentStep(1);
-    setSelections({ product: null, quantity: null, duration: null });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Bir hata oluştu');
+      }
+
+      toast({
+        title: "Talep Alındı! 🚀",
+        description: `Kiralama talebiniz başarıyla oluşturuldu. Talep No: ${result.data.rentalId}`,
+      });
+
+      reset();
+      setCurrentStep(1);
+      setSelections({ product: null, quantity: null, duration: null });
+
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast({
+        title: "Hata!",
+        description: error.message || "Talep oluşturulamadı. Lütfen tekrar deneyin.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -121,14 +145,13 @@ const KiralaPage = () => {
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Kiralamak istediğiniz ürünü seçin</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {products.filter(p => !p.purchasable).map(product => (
-                    <div 
+                    <div
                       key={product.id}
                       onClick={() => handleProductSelect(product)}
-                      className={`cursor-pointer p-4 rounded-xl border transition-all ${
-                        selections.product?.id === product.id 
-                          ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500' 
+                      className={`cursor-pointer p-4 rounded-xl border transition-all ${selections.product?.id === product.id
+                          ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-500'
                           : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-purple-500/50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center space-x-4">
                         <img src={product.image} alt={product.name} className="w-16 h-16 object-contain rounded-lg bg-white dark:bg-white/10 p-1" />
@@ -151,11 +174,10 @@ const KiralaPage = () => {
                     <button
                       key={qty}
                       onClick={() => handleQuantitySelect(qty)}
-                      className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${
-                        selections.quantity === qty 
-                          ? 'bg-purple-500 text-white' 
+                      className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${selections.quantity === qty
+                          ? 'bg-purple-500 text-white'
                           : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
-                      }`}
+                        }`}
                     >
                       {qty} Adet
                     </button>
@@ -163,7 +185,7 @@ const KiralaPage = () => {
                 </div>
                 <div className="flex items-center justify-center space-x-4 mt-8">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                   </Button>
                 </div>
               </motion.div>
@@ -177,11 +199,10 @@ const KiralaPage = () => {
                     <button
                       key={day}
                       onClick={() => handleDurationSelect(day)}
-                      className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${
-                        selections.duration === day 
-                          ? 'bg-purple-500 text-white' 
+                      className={`px-6 py-4 rounded-xl font-bold text-lg transition-all min-w-[100px] ${selections.duration === day
+                          ? 'bg-purple-500 text-white'
                           : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
-                      }`}
+                        }`}
                     >
                       {day} Gün
                     </button>
@@ -189,7 +210,7 @@ const KiralaPage = () => {
                 </div>
                 <div className="flex items-center justify-center space-x-4 mt-8">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                   </Button>
                 </div>
               </motion.div>
@@ -214,10 +235,10 @@ const KiralaPage = () => {
                 </div>
                 <div className="flex items-center justify-center space-x-4 mt-8">
                   <Button variant="outline" onClick={prevStep} className="text-gray-700 dark:text-white border-gray-300 dark:border-white/20">
-                    <ArrowLeft className="mr-2 h-4 w-4"/> Geri
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Geri
                   </Button>
                   <Button onClick={handleConfirm} className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700">
-                    Hemen Kiralamaya Devam Et <ArrowRight className="ml-2 h-4 w-4"/>
+                    Hemen Kiralamaya Devam Et <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </motion.div>
@@ -231,42 +252,42 @@ const KiralaPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="fullName" className="text-gray-900 dark:text-white mb-2 block">Ad Soyad *</Label>
-                  <input 
-                    id="fullName" 
-                    {...register('fullName')} 
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-                    placeholder="Adınız Soyadınız" 
+                  <input
+                    id="fullName"
+                    {...register('fullName')}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    placeholder="Adınız Soyadınız"
                   />
                   {errors.fullName && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.fullName.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="company" className="text-gray-900 dark:text-white mb-2 block">Firma Adı *</Label>
-                  <input 
-                    id="company" 
-                    {...register('company')} 
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-                    placeholder="Firma Adınız" 
+                  <input
+                    id="company"
+                    {...register('company')}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    placeholder="Firma Adınız"
                   />
                   {errors.company && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.company.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-gray-900 dark:text-white mb-2 block">E-posta *</Label>
-                  <input 
-                    id="email" 
-                    type="email" 
-                    {...register('email')} 
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-                    placeholder="ornek@email.com" 
+                  <input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    placeholder="ornek@email.com"
                   />
                   {errors.email && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.email.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="phone" className="text-gray-900 dark:text-white mb-2 block">Telefon *</Label>
-                  <input 
-                    id="phone" 
-                    {...register('phone')} 
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-                    placeholder="0555 555 55 55" 
+                  <input
+                    id="phone"
+                    {...register('phone')}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    placeholder="0555 555 55 55"
                   />
                   {errors.phone && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.phone.message}</p>}
                 </div>
@@ -274,12 +295,12 @@ const KiralaPage = () => {
 
               <div>
                 <Label htmlFor="message" className="text-gray-900 dark:text-white mb-2 block">Mesajınız *</Label>
-                <textarea 
-                  id="message" 
-                  {...register('message')} 
-                  rows={4} 
-                  className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none resize-none placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-                  placeholder="Etkinlik detayları, tarih, lokasyon vb. bilgileri yazınız..." 
+                <textarea
+                  id="message"
+                  {...register('message')}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white focus:border-purple-500 outline-none resize-none placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  placeholder="Etkinlik detayları, tarih, lokasyon vb. bilgileri yazınız..."
                 />
                 {errors.message && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.message.message}</p>}
               </div>
@@ -293,13 +314,13 @@ const KiralaPage = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  id="callbackPreference" 
-                  {...register('callbackPreference')} 
-                  className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
+                <input
+                  type="checkbox"
+                  id="callbackPreference"
+                  {...register('callbackPreference')}
+                  className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
                 <Label htmlFor="callbackPreference" className="text-gray-700 dark:text-white">Beni telefonla arayarak bilgilendirin</Label>
               </div>
