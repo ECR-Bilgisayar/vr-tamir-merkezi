@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Users, Shield, Headphones, Package, TrendingUp, Building2, School, Store, Award } from 'lucide-react';
+import { ArrowRight, Zap, Users, Shield, Headphones, Package, TrendingUp, Building2, School, Store, Award, Wrench, Mail, Truck, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SectionHeading from '@/components/SectionHeading';
 import FeatureGrid from '@/components/FeatureGrid';
@@ -11,6 +11,8 @@ import GameVideoDialog from '@/components/GameVideoDialog';
 import Testimonials from '@/components/Testimonials';
 import FAQAccordion from '@/components/FAQAccordion';
 import { games } from '@/data/games';
+
+
 
 const HomePage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -120,43 +122,168 @@ const HomePage = () => {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link to="/kirala">
-                <Button size="lg" variant="outline" className="border-2 border-purple-500 hover:bg-purple-50 dark:hover:bg-white/10 text-purple-600 dark:text-white font-semibold text-lg px-8 py-6">
-                  Kirala
-                </Button>
-              </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Desteklenen VR Sistemleri */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#0a0e27] dark:to-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading title="Desteklenen VR Sistemleri" description="En güncel VR teknolojileri ile donatılmış geniş ekipman parkuru" />
+      {/* Hizmet Verdiğimiz VR Ürünleri */}
+<section className="py-16 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#0a0e27] dark:to-black">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <SectionHeading title="Hizmet verdiğimiz VR modelleri" description="Uzman ekibimiz ile hızlı ve kaliteli çözümler." />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {platformCards.map((platform, index) => (
-             <motion.div
-  key={index}
-  initial={{ opacity: 0, y: 20 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true }}
-  transition={{ duration: 0.5, delay: index * 0.1 }}
-  whileHover={{ y: -10 }}
-  className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-purple-500/30 transition-all text-center"
->
-  <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${platform.color} flex items-center justify-center mb-4`}>
-    <Zap className="w-8 h-8 text-white" />
-  </div>
-  <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{platform.name}</h3>
-  <p className="text-gray-600 dark:text-gray-400 text-sm">{platform.description}</p>
-</motion.div>
-            ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[
+        {
+          name: "Meta Quest 2",
+          color: "from-gray-600 to-gray-800",
+          image: "/meta-quest-2.jpg"
+        },
+        {
+          name: "Meta Quest 3",
+          color: "from-purple-600 to-purple-800",
+          image: "/meta-quest-3.jpg"
+        },
+        {
+          name: "Meta Quest 3S",
+          color: "from-violet-600 to-violet-800",
+          image: "/meta-quest-3s.jpg"
+        },
+        {
+          name: "Meta Quest Pro",
+          color: "from-pink-600 to-pink-800",
+          image: "/meta-quest-pro.png"
+        },
+        {
+          name: "HTC Vive Pro",
+          color: "from-blue-600 to-blue-800",
+          image: "/htc-vive-pro.png"
+        },
+        {
+          name: "HTC Vive",
+          color: "from-indigo-600 to-indigo-800",
+          image: "/htc-vive.jpg"
+        },
+        {
+          name: "Oculus Rift",
+          color: "from-indigo-600 to-indigo-800",
+          image: "/oculus-rift.jpg"
+        },
+        
+      ].map((platform, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={{ y: -10 }}
+          className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-purple-500/30 transition-all text-center"
+        >
+          <div className="w-24 h-24 mx-auto mb-4">
+            <img 
+              src={platform.image} 
+              alt={platform.name}
+              className="w-full h-full object-contain"
+            />
           </div>
-        </div>
-      </section>
+          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{platform.name}</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">{platform.description}</p>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
 
+{/* Tamir Süreci */}
+<section className="py-16 bg-gradient-to-b from-gray-100 to-gray-50 dark:from-black dark:to-[#0a0e27]">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <SectionHeading 
+      title="Tamir Süreci Nasıl İşler?" 
+      description="4 kolay adımda cihazınızı tamir ettirin" 
+    />
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+      {[
+        {
+          step: 1,
+          icon: Wrench,
+          title: "Cihaz & Arıza Seçimi",
+          description: "VR cihazınızı ve yaşadığınız arıza türünü seçin",
+          color: "from-blue-500 to-blue-600"
+        },
+        {
+          step: 2,
+          icon: Mail,
+          title: "Bilgilerinizi Girin",
+          description: "İletişim bilgilerinizi ve arıza detaylarını paylaşın",
+          color: "from-purple-500 to-purple-600"
+        },
+        {
+          step: 3,
+          icon: Truck,
+          title: "Teslimat Yöntemi",
+          description: "Kargo veya elden teslim seçeneklerinden birini tercih edin",
+          color: "from-amber-500 to-amber-600"
+        },
+        {
+          step: 4,
+          icon: CheckCircle,
+          title: "Onay & Takip",
+          description: "Talebinizi onaylayın ve takip numaranızı alın",
+          color: "from-green-500 to-green-600"
+        }
+      ].map((item, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="relative p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-purple-500/30 transition-all"
+        >
+          {/* Step Number Badge */}
+          <div className={`absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+            {item.step}
+          </div>
+          
+          {/* Icon */}
+          <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4`}>
+            <item.icon className="w-7 h-7 text-white" />
+          </div>
+          
+          <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">{item.title}</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">{item.description}</p>
+
+          {/* Connector Line (hidden on last item and mobile) */}
+          {index < 3 && (
+            <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-gray-300 to-transparent dark:from-white/20" />
+          )}
+        </motion.div>
+      ))}
+    </div>
+
+    {/* CTA Button */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: 0.4 }}
+      className="text-center mt-12"
+    >
+      <Button 
+        onClick={() => window.location.href = '/servis'} 
+        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-xl"
+      >
+        Hemen Tamir Talebi Oluştur
+        <ArrowRight className="ml-2 h-5 w-5" />
+      </Button>
+    </motion.div>
+  </div>
+</section>
+
+
+      
       {/* Neden Biz */}
       <section className="py-16 bg-white dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -165,55 +292,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Oyunlar */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-black dark:to-[#0a0e27]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading title="100+ VR Oyunu ve Deneyim" description="Her yaşa ve ilgi alanına uygun zengin içerik" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {games.slice(0, 6).map((game, index) => (
-              <GameCard key={game.id} game={game} index={index} onVideoClick={handleGameVideoClick} />
-            ))}
-          </div>
-          <div className="text-center">
-            <Link to="/oyunlar">
-              <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold">
-                Tüm Oyunları Görüntüle
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Kullanım Senaryoları */}
-<section className="py-16 bg-gradient-to-b from-white to-gray-100 dark:from-[#0a0e27] dark:to-black">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <SectionHeading title="Hangi Etkinlikler İçin Uygun?" description="VR kiralama hizmetimizin ideal kullanım alanları" />
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {usageScenarios.map((scenario, index) => {
-        const Icon = eval(scenario.icon);
-        return (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm hover:border-purple-500/30 transition-all text-center"
-          >
-            <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${scenario.color} flex items-center justify-center mb-4`}>
-              <Icon className="w-8 h-8 text-white" />
-            </div>
-            <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">{scenario.title}</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">{scenario.description}</p>
-          </motion.div>
-        );
-      })}
-    </div>
-  </div>
-</section>
-
+      
       {/* Müşteri Yorumları */}
       <section className="py-16 bg-gray-50 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -230,30 +309,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA */}
-<section className="py-16 bg-gray-100 dark:bg-[#0a0e27]">
-  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="p-12 rounded-3xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 backdrop-blur-sm"
-    >
-      <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-        Etkinliğiniz İçin Teklif Alın
-      </h2>
-      <p className="text-gray-700 dark:text-gray-300 mb-8 text-lg">
-        Ücretsiz danışmanlık ve özel fiyat teklifi için hemen iletişime geçin
-      </p>
-      <Link to="/iletisim">
-        <Button size="lg" className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold text-lg px-8 py-6">
-          Hemen Teklif Al
-          <ArrowRight className="w-5 h-5 ml-2" />
-        </Button>
-      </Link>
-    </motion.div>
-  </div>
-</section>
+      
 
       <GameVideoDialog game={selectedGame} open={isVideoOpen} onOpenChange={setIsVideoOpen} />
     </>

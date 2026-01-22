@@ -21,8 +21,8 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Ana Sayfa', path: '/' },
-    { name: 'Ürünler', path: '/urunler' },
-    { name: 'Oyunlar', path: '/oyunlar' },
+    { name: 'VR Dünyası', path: '/urunler' },
+    { name: 'Kirala', path: '/kirala' },
     { name: 'Kurumsal', path: '/kurumsal' },
     { name: 'İletişim', path: '/iletisim' }
   ];
@@ -76,17 +76,13 @@ const Navbar = () => {
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-yellow-500" />
+                <Sun className="w-7 h-5 text-yellow-500" />
               ) : (
-                <Moon className="w-5 h-5 text-gray-700" />
+                <Moon className="w-7 h-5 text-gray-700" />
               )}
             </button>
 
-            <Link to="/kirala">
-              <Button variant="outline" className="border-purple-500/50 text-purple-600 dark:text-white hover:bg-purple-500/10 font-semibold">
-                Kirala
-              </Button>
-            </Link>
+            
             <Link to="/servis">
               <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold shadow-lg shadow-purple-500/30">
                 Servis & Onarım

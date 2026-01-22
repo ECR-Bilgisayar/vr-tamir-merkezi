@@ -13,12 +13,14 @@ import KiralaPage from '@/pages/KiralaPage';
 import ServisPage from '@/pages/ServisPage';
 import { Toaster } from '@/components/ui/toaster';
 import CheckoutPage from '@/pages/CheckoutPage';
+import ScrollToTop from '@/components/ScrollToTop';
 
 
 function App() {
   return (
     <ThemeProvider>
       <Router>
+        <ScrollToTop />
         <MainLayout>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -31,7 +33,6 @@ function App() {
             <Route path="/servis" element={<ServisPage />} />
             <Route path="/admin/leads" element={<AdminLeadsPage />} />
             <Route path="/siparis" element={<CheckoutPage />} />
-
           </Routes>
         </MainLayout>
         <Toaster />
@@ -39,5 +40,6 @@ function App() {
     </ThemeProvider>
   );
 }
+
 
 export default App;
