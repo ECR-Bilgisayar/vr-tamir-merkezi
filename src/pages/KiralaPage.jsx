@@ -107,7 +107,7 @@ const KiralaPage = () => {
                   Bireysel Kiralama Yapılmamaktadır
                 </h3>
                 <p className="text-amber-700 dark:text-amber-400 text-lg">
-                  Sadece kurumsal müşterilerimize hizmet vermekteyiz. Fuar, etkinlik, organizasyon ve kurumsal projeler için bizimle iletişime geçebilirsiniz.
+                  Sadece kurumsal müşterilerimize hizmet vermekteyiz. Kurumsal kiralama için aşağıdaki adımları izleyebilirsiniz.
                 </p>
               </div>
             </div>
