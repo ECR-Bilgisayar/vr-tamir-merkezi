@@ -19,8 +19,8 @@ const AdminLoginPage = () => {
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (token) {
-            // Verify token
-            fetch(`${API_URL}/api/admin/verify`, {
+            // Verify token - ✅ DÜZELTİLDİ
+            fetch(`${API_URL}/admin/verify`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(res => {
@@ -40,7 +40,8 @@ const AdminLoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/api/admin/login`, {
+            // ✅ DÜZELTİLDİ: /api/ fazladan eklenmemeli
+            const response = await fetch(`${API_URL}/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),

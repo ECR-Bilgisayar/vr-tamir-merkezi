@@ -1,9 +1,9 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export const api = {
-    // Service Requests
+    // Service Requests - ✅ DÜZELTİLDİ: /api/ kaldırıldı
     createServiceRequest: async (data) => {
-        const response = await fetch(`${API_BASE_URL}/api/service-requests`, {
+        const response = await fetch(`${API_BASE_URL}/service-requests`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -12,13 +12,13 @@ export const api = {
     },
 
     trackServiceRequest: async (serviceId) => {
-        const response = await fetch(`${API_BASE_URL}/api/service-requests/track/${serviceId}`);
+        const response = await fetch(`${API_BASE_URL}/service-requests/track/${serviceId}`);
         return response.json();
     },
 
-    // Rental Requests
+    // Rental Requests - ✅ DÜZELTİLDİ
     createRentalRequest: async (data) => {
-        const response = await fetch(`${API_BASE_URL}/api/rental-requests`, {
+        const response = await fetch(`${API_BASE_URL}/rental-requests`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -26,9 +26,9 @@ export const api = {
         return response.json();
     },
 
-    // Admin
+    // Admin - ✅ DÜZELTİLDİ
     adminLogin: async (username, password) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+        const response = await fetch(`${API_BASE_URL}/admin/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
@@ -37,14 +37,14 @@ export const api = {
     },
 
     adminVerify: async (token) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/verify`, {
+        const response = await fetch(`${API_BASE_URL}/admin/verify`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response;
     },
 
     getStats: async (token) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/stats`, {
+        const response = await fetch(`${API_BASE_URL}/admin/stats`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.json();
@@ -52,7 +52,7 @@ export const api = {
 
     getServiceRequests: async (token, params = {}) => {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${API_BASE_URL}/api/admin/service-requests?${query}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/service-requests?${query}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.json();
@@ -60,14 +60,14 @@ export const api = {
 
     getRentalRequests: async (token, params = {}) => {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${API_BASE_URL}/api/admin/rental-requests?${query}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/rental-requests?${query}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response.json();
     },
 
     updateServiceStatus: async (token, id, data) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/service-requests/${id}/status`, {
+        const response = await fetch(`${API_BASE_URL}/admin/service-requests/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export const api = {
     },
 
     updateRentalStatus: async (token, id, data) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/rental-requests/${id}/status`, {
+        const response = await fetch(`${API_BASE_URL}/admin/rental-requests/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const api = {
     },
 
     deleteServiceRequest: async (token, id) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/service-requests/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/service-requests/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -99,7 +99,7 @@ export const api = {
     },
 
     deleteRentalRequest: async (token, id) => {
-        const response = await fetch(`${API_BASE_URL}/api/admin/rental-requests/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/rental-requests/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` },
         });
