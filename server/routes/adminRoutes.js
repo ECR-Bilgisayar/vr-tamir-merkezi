@@ -597,31 +597,37 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
             return res.json({ url: request.receipt_url });
         }
 
-        // Yoksa storage'dan al
-        const fileName = `${request.purchase_id}.jpg`;
-        const { data: urlData } = await supabase.storage
-            .from('receipts')
-            .createSignedUrl(fileName, 60 * 60); // 1 saat
+        // Create priority list of possible file names
+        // 1. Exact match with extension from DB if possible (we don't store ext separately, so we try common ones)
+        // 2. Try signed URLs for each type
+        const possibleExtensions = ['jpg', 'png', 'pdf', 'jpeg'];
 
-        if (urlData?.signedUrl) {
-            return res.json({ url: urlData.signedUrl });
+        for (const ext of possibleExtensions) {
+            const { data } = await supabase.storage
+                .from('receipts')
+                .createSignedUrl(`${request.purchase_id}.${ext}`, 60 * 60);
+
+            if (data?.signedUrl) {
+                // Verify if the file actually exists by making a HEAD request or relying on Supabase (createSignedUrl doesn't check existence usually)
+                // Better approach: list files in bucket with prefix? No, simple try-error on frontend is messy.
+                // Supabase createSignedUrl DOES NOT return 404 if file missing, it just gives a link that 404s.
+                // So we should ideally list the file to see which one exists.
+
+                const { data: listData } = await supabase.storage
+                    .from('receipts')
+                    .list('', {
+                        limit: 1,
+                        search: `${request.purchase_id}.${ext}`
+                    });
+
+                if (listData && listData.length > 0) {
+                    return res.json({ url: data.signedUrl });
+                }
+            }
         }
 
-        // PNG dene
-        const { data: pngData } = await supabase.storage
-            .from('receipts')
-            .createSignedUrl(`${request.purchase_id}.png`, 60 * 60);
-
-        if (pngData?.signedUrl) {
-            return res.json({ url: pngData.signedUrl });
-        }
-
-        // PDF dene
-        const { data: pdfData } = await supabase.storage
-            .from('receipts')
-            .createSignedUrl(`${request.purchase_id}.pdf`, 60 * 60);
-
-        res.json({ url: pdfData?.signedUrl || null });
+        // If no file found in storage list
+        return res.status(404).json({ error: 'Dekont dosyası bulunamadı' });
 
     } catch (error) {
         console.error('Get receipt error:', error);
