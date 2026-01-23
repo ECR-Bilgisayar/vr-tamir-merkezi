@@ -577,5 +577,57 @@ router.delete('/purchase-requests/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Get receipt signed URL for admin
+router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const { data: request, error } = await supabase
+            .from('purchase_requests')
+            .select('purchase_id, receipt_url')
+            .eq('id', id)
+            .single();
+
+        if (error || !request) {
+            return res.status(404).json({ error: 'Siparis bulunamadi' });
+        }
+
+        // Eger receipt_url varsa direkt don
+        if (request.receipt_url) {
+            return res.json({ url: request.receipt_url });
+        }
+
+        // Yoksa storage'dan al
+        const fileName = `${request.purchase_id}.jpg`;
+        const { data: urlData } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(fileName, 60 * 60); // 1 saat
+
+        if (urlData?.signedUrl) {
+            return res.json({ url: urlData.signedUrl });
+        }
+
+        // PNG dene
+        const { data: pngData } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(`${request.purchase_id}.png`, 60 * 60);
+
+        if (pngData?.signedUrl) {
+            return res.json({ url: pngData.signedUrl });
+        }
+
+        // PDF dene
+        const { data: pdfData } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(`${request.purchase_id}.pdf`, 60 * 60);
+
+        res.json({ url: pdfData?.signedUrl || null });
+
+    } catch (error) {
+        console.error('Get receipt error:', error);
+        res.status(500).json({ error: 'Dekont alinamadi' });
+    }
+});
+
 export default router;
 

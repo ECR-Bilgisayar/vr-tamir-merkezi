@@ -1,6 +1,59 @@
-import { sendPurchaseCreatedEmail } from '../services/emailService.js';
+import express from 'express';
+import supabase from '../config/supabase.js';
+import { sendPurchaseCreatedEmail, sendPurchaseStatusEmail } from '../services/emailService.js';
 
-// ... existing code ...
+const router = express.Router();
+
+// Generate unique purchase ID
+const generatePurchaseId = () => {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    return `PUR-${year}-${random}`;
+};
+
+// Upload receipt to Supabase Storage
+const uploadReceipt = async (base64Data, purchaseId) => {
+    try {
+        // Base64'ten dosya olustur
+        const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            throw new Error('Invalid base64 data');
+        }
+
+        const contentType = matches[1];
+        const base64 = matches[2];
+        const buffer = Buffer.from(base64, 'base64');
+
+        // Dosya uzantisini belirle
+        const extension = contentType.includes('pdf') ? 'pdf' :
+            contentType.includes('png') ? 'png' : 'jpg';
+
+        const fileName = `${purchaseId}.${extension}`;
+
+        // Supabase Storage'a yukle
+        const { data, error } = await supabase.storage
+            .from('receipts')
+            .upload(fileName, buffer, {
+                contentType: contentType,
+                upsert: true
+            });
+
+        if (error) {
+            console.error('Storage upload error:', error);
+            throw error;
+        }
+
+        // Signed URL olustur (1 yil gecerli)
+        const { data: urlData } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(fileName, 60 * 60 * 24 * 365);
+
+        return urlData?.signedUrl || null;
+    } catch (error) {
+        console.error('Receipt upload error:', error);
+        return null;
+    }
+};
 
 // Create new purchase request
 router.post('/', async (req, res) => {
@@ -29,10 +82,13 @@ router.post('/', async (req, res) => {
         }
 
         if (!receiptBase64) {
-            return res.status(400).json({ error: 'Dekont yüklenmedi' });
+            return res.status(400).json({ error: 'Dekont yuklenmedi' });
         }
 
         const purchaseId = generatePurchaseId();
+
+        // Upload receipt to storage
+        const receiptUrl = await uploadReceipt(receiptBase64, purchaseId);
 
         // Insert into Supabase
         const { data: newRequest, error: insertError } = await supabase
@@ -47,7 +103,7 @@ router.post('/', async (req, res) => {
                 product_price: productPrice,
                 shipping_price: shippingPrice,
                 total_price: totalPrice,
-                receipt_data: receiptBase64,
+                receipt_url: receiptUrl,
                 status: 'pending',
                 quantity: quantity || 1,
                 invoice_type: invoiceType || 'individual',
@@ -61,7 +117,7 @@ router.post('/', async (req, res) => {
 
         if (insertError) {
             console.error('Supabase insert error:', insertError);
-            return res.status(500).json({ error: 'Veritabanı hatası' });
+            return res.status(500).json({ error: 'Veritabani hatasi' });
         }
 
         // Record initial status in history
@@ -71,7 +127,7 @@ router.post('/', async (req, res) => {
                 request_type: 'purchase',
                 request_id: newRequest.id,
                 new_status: 'pending',
-                notes: 'Sipariş oluşturuldu, dekont bekleniyor'
+                notes: 'Siparis olusturuldu, dekont bekleniyor'
             }]);
 
         // Send confirmation emails
@@ -93,7 +149,7 @@ router.post('/', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: 'Siparişiniz başarıyla oluşturuldu',
+            message: 'Siparisimiz basariyla olusturuldu',
             data: {
                 purchaseId,
                 id: newRequest.id
@@ -102,7 +158,7 @@ router.post('/', async (req, res) => {
 
     } catch (error) {
         console.error('Purchase request error:', error);
-        res.status(500).json({ error: 'Sunucu hatası. Lütfen tekrar deneyin.' });
+        res.status(500).json({ error: 'Sunucu hatasi. Lutfen tekrar deneyin.' });
     }
 });
 
@@ -113,12 +169,12 @@ router.get('/track/:purchaseId', async (req, res) => {
 
         const { data: request, error } = await supabase
             .from('purchase_requests')
-            .select('purchase_id, full_name, delivery_method, total_price, status, created_at, updated_at')
+            .select('id, purchase_id, full_name, delivery_method, total_price, status, created_at, updated_at, quantity')
             .eq('purchase_id', purchaseId.toUpperCase())
             .single();
 
         if (error || !request) {
-            return res.status(404).json({ error: 'Sipariş bulunamadı' });
+            return res.status(404).json({ error: 'Siparis bulunamadi' });
         }
 
         // Get status history
@@ -136,7 +192,7 @@ router.get('/track/:purchaseId', async (req, res) => {
 
     } catch (error) {
         console.error('Track purchase error:', error);
-        res.status(500).json({ error: 'Sunucu hatası' });
+        res.status(500).json({ error: 'Sunucu hatasi' });
     }
 });
 

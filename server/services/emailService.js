@@ -548,5 +548,97 @@ export const sendPurchaseCreatedEmail = async (data) => {
   }
 };
 
+// Purchase Status Update Email
+const getPurchaseStatusEmail = (data) => ({
+  to: data.email,
+  cc: CC_EMAILS,
+  from: process.env.FROM_EMAIL,
+  subject: `VR Hijyen Bandi - Siparis Durumu Guncellendi (#${data.purchaseId})`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; margin: 10px 0; }
+        .status-confirmed { background: #dcfce7; color: #166534; }
+        .status-preparing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #fef3c7; color: #92400e; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8b5cf6; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Siparis Durumu Guncellendi</h1>
+      </div>
+      <div class="content">
+        <p>Sayin <strong>${data.fullName}</strong>,</p>
+        <p><strong>#${data.purchaseId}</strong> numarali siparisizin durumu guncellendi.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <span class="status-badge status-${data.status}">${data.statusLabel}</span>
+        </div>
+        
+        ${data.notes ? `
+        <div class="info-box">
+          <h4 style="margin-top: 0; color: #8b5cf6;">Not</h4>
+          <p>${data.notes}</p>
+        </div>
+        ` : ''}
+
+        ${data.status === 'shipped' ? `
+        <div class="info-box" style="border-left-color: #f59e0b;">
+          <h4 style="margin-top: 0; color: #d97706;">Kargo Bilgisi</h4>
+          <p>Siparisimiz kargoya verilmistir. Kargo takip numaraniz SMS ile ayrica bildirilecektir.</p>
+        </div>
+        ` : ''}
+
+        ${data.status === 'delivered' ? `
+        <div class="info-box" style="border-left-color: #10b981;">
+          <h4 style="margin-top: 0; color: #059669;">Teslim Edildi</h4>
+          <p>Siparisimiz basariyla teslim edilmistir. Bizi tercih ettiginiz icin tesekkur ederiz!</p>
+        </div>
+        ` : ''}
+        
+        <p style="text-align: center;">
+          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Siparis Takibi</a>
+        </p>
+      </div>
+      <div class="footer">
+        <p>VR Tamir Merkezi | Hijyen Cozumleri</p>
+      </div>
+    </body>
+    </html>
+  `
+});
+
+export const sendPurchaseStatusEmail = async (data) => {
+  try {
+    const statusLabels = {
+      pending: 'Odeme Bekleniyor',
+      confirmed: 'Odeme Onaylandi',
+      preparing: 'Hazirlaniyor',
+      shipped: 'Kargoya Verildi',
+      delivered: 'Teslim Edildi',
+      cancelled: 'Iptal Edildi'
+    };
+
+    await sgMail.send(getPurchaseStatusEmail({
+      ...data,
+      statusLabel: statusLabels[data.status] || data.status
+    }));
+    console.log(`Purchase status email sent to ${data.email}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Purchase status email error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export default sgMail;
 
