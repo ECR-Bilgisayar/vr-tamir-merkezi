@@ -30,15 +30,26 @@ const RENTAL_STATUS_CONFIG = {
     cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: AlertCircle, description: 'Talep iptal edildi.' }
 };
 
+// Purchase request statuses
+const PURCHASE_STATUS_CONFIG = {
+    pending: { label: 'Ödeme Bekleniyor', color: 'bg-yellow-500', icon: Clock, description: 'Siparişiniz alındı, ödeme kontrol ediliyor.' },
+    confirmed: { label: 'Ödeme Onaylandı', color: 'bg-green-500', icon: CheckCircle, description: 'Ödemeniz onaylandı, siparişiniz hazırlanacak.' },
+    preparing: { label: 'Hazırlanıyor', color: 'bg-blue-500', icon: Package, description: 'Siparişiniz hazırlanıyor.' },
+    shipped: { label: 'Kargoya Verildi', color: 'bg-teal-500', icon: Truck, description: 'Siparişiniz kargoya verildi.' },
+    delivered: { label: 'Teslim Edildi', color: 'bg-green-600', icon: MapPin, description: 'Siparişiniz teslim edildi.' },
+    cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: AlertCircle, description: 'Sipariş iptal edildi.' }
+};
+
 const SERVICE_STATUSES = ['pending', 'contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing', 'repaired', 'shipped', 'delivered'];
 const RENTAL_STATUSES = ['pending', 'contacted', 'quoted', 'approved', 'active', 'completed'];
+const PURCHASE_STATUSES = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered'];
 
 const TrackingPage = () => {
     const [trackingId, setTrackingId] = useState('');
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [requestType, setRequestType] = useState('service'); // 'service' or 'rental'
+    const [requestType, setRequestType] = useState('service'); // 'service', 'rental', or 'purchase'
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -50,12 +61,22 @@ const TrackingPage = () => {
 
         try {
             const API_URL = import.meta.env.VITE_API_URL || '';
+            const id = trackingId.trim().toUpperCase();
 
-            // Determine if it's a service or rental request based on prefix
-            const isRental = trackingId.trim().toUpperCase().startsWith('RNT');
-            const endpoint = isRental
-                ? `${API_URL}/api/rental-requests/track/${trackingId.trim()}`
-                : `${API_URL}/api/service-requests/track/${trackingId.trim()}`;
+            // Determine request type based on prefix
+            let endpoint = '';
+            let type = 'service';
+
+            if (id.startsWith('RNT')) {
+                endpoint = `${API_URL}/api/rental-requests/track/${id}`;
+                type = 'rental';
+            } else if (id.startsWith('PUR')) {
+                endpoint = `${API_URL}/api/purchases/track/${id}`;
+                type = 'purchase';
+            } else {
+                endpoint = `${API_URL}/api/service-requests/track/${id}`;
+                type = 'service';
+            }
 
             const response = await fetch(endpoint);
             const data = await response.json();
@@ -65,7 +86,7 @@ const TrackingPage = () => {
             }
 
             setResult(data);
-            setRequestType(isRental ? 'rental' : 'service');
+            setRequestType(type);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -73,8 +94,17 @@ const TrackingPage = () => {
         }
     };
 
-    const getStatusConfig = () => requestType === 'rental' ? RENTAL_STATUS_CONFIG : SERVICE_STATUS_CONFIG;
-    const getAllStatuses = () => requestType === 'rental' ? RENTAL_STATUSES : SERVICE_STATUSES;
+    const getStatusConfig = () => {
+        if (requestType === 'rental') return RENTAL_STATUS_CONFIG;
+        if (requestType === 'purchase') return PURCHASE_STATUS_CONFIG;
+        return SERVICE_STATUS_CONFIG;
+    };
+
+    const getAllStatuses = () => {
+        if (requestType === 'rental') return RENTAL_STATUSES;
+        if (requestType === 'purchase') return PURCHASE_STATUSES;
+        return SERVICE_STATUSES;
+    };
 
     const getCurrentStatusIndex = () => {
         if (!result) return -1;
@@ -99,7 +129,7 @@ const TrackingPage = () => {
         <>
             <Helmet>
                 <title>Sipariş / Servis Takip - VR Tamir Merkezi</title>
-                <meta name="description" content="Servis veya kiralama talebinizin durumunu takip numaranızla sorgulayın." />
+                <meta name="description" content="Servis, kiralama veya sipariş durumunuzu takip numaranızla sorgulayın." />
             </Helmet>
 
             <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16 px-4">
@@ -117,7 +147,7 @@ const TrackingPage = () => {
                             Sipariş / Servis Takip
                         </h1>
                         <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                            Takip numaranızı girerek servis veya kiralama talebinizin durumunu sorgulayabilirsiniz.
+                            Takip numaranızı girerek servis, kiralama veya sipariş durumunuzu sorgulayabilirsiniz.
                         </p>
                     </motion.div>
 
@@ -136,7 +166,7 @@ const TrackingPage = () => {
                                     type="text"
                                     value={trackingId}
                                     onChange={(e) => setTrackingId(e.target.value.toUpperCase())}
-                                    placeholder="SRV-2026-XXXXXX veya RNT-2026-XXXXXX"
+                                    placeholder="SRV-..., RNT-... veya PUR-..."
                                     className="w-full pl-12 pr-4 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none text-lg font-mono"
                                 />
                             </div>
@@ -177,7 +207,7 @@ const TrackingPage = () => {
                                     <div>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">Takip No</p>
                                         <p className="text-xl font-mono font-bold text-purple-600 dark:text-purple-400">
-                                            {result.request.service_id || result.request.rental_id}
+                                            {result.request.service_id || result.request.rental_id || result.request.purchase_id}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -193,7 +223,30 @@ const TrackingPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 text-sm">
-                                    {requestType === 'service' ? (
+                                    {requestType === 'purchase' ? (
+                                        <>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Ürün</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">VR Hijyen Gözlük Bandı</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Adet</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">{result.request.quantity} Adet</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Tutar</p>
+                                                <p className="font-semibold text-green-600 dark:text-green-400">
+                                                    ₺{result.request.total_price?.toLocaleString('tr-TR')}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Teslimat</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">
+                                                    {result.request.delivery_method === 'kargo' ? '📦 Kargo' : '🏢 Elden Teslim'}
+                                                </p>
+                                            </div>
+                                        </>
+                                    ) : requestType === 'service' ? (
                                         <>
                                             <div>
                                                 <p className="text-gray-500 dark:text-gray-400">Cihaz</p>
@@ -251,7 +304,7 @@ const TrackingPage = () => {
                                 {/* Admin Notes if available */}
                                 {result.request.admin_notes && (
                                     <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-200 dark:border-purple-500/20">
-                                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">💬 Servis Notu</p>
+                                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">💬 Not</p>
                                         <p className="text-gray-700 dark:text-gray-300">{result.request.admin_notes}</p>
                                     </div>
                                 )}
@@ -341,10 +394,12 @@ const TrackingPage = () => {
                             className="text-center text-gray-500 dark:text-gray-400 text-sm space-y-2"
                         >
                             <p>Takip numaranızı talebinizi oluşturduktan sonra aldığınız e-postada bulabilirsiniz.</p>
-                            <p>
-                                Servis: <span className="font-mono text-purple-600 dark:text-purple-400">SRV-2026-123456</span>
-                                <span className="mx-2">|</span>
-                                Kiralama: <span className="font-mono text-blue-600 dark:text-blue-400">RNT-2026-123456</span>
+                            <p className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                                <span>Servis: <span className="font-mono text-purple-600 dark:text-purple-400">SRV-...</span></span>
+                                <span>|</span>
+                                <span>Kiralama: <span className="font-mono text-blue-600 dark:text-purple-400">RNT-...</span></span>
+                                <span>|</span>
+                                <span>Sipariş: <span className="font-mono text-green-600 dark:text-green-400">PUR-...</span></span>
                             </p>
                         </motion.div>
                     )}

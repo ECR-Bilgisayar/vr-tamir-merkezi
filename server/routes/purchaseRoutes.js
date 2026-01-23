@@ -197,6 +197,7 @@ router.get('/track/:purchaseId', async (req, res) => {
             .eq('request_id', request.id)
             .order('created_at', { ascending: false });
 
+
         res.json({
             request,
             history: history || []
