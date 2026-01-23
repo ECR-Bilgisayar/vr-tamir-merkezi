@@ -8,7 +8,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 
 if (!supabaseUrl || !supabaseKey) {
     console.error('❌ SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY (veya ANON_KEY) .env dosyasında tanımlanmalı!');
-    process.exit(1);
+    // process.exit(1); // KILLING PROCESS CAUSES 500 ON VERCEL WITHOUT LOGS
 }
 
 // Supabase client oluştur
