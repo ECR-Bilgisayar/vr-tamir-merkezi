@@ -64,28 +64,32 @@ const AdminPanelPage = () => {
         try {
             const headers = { Authorization: `Bearer ${token}` };
 
-            const [statsRes, serviceRes, rentalRes, purchaseRes] = await Promise.all([
-                fetch(`${API_URL}/api/admin/stats`, { headers }),
-                fetch(`${API_URL}/api/admin/service-requests`, { headers }),
-                fetch(`${API_URL}/api/admin/rental-requests`, { headers }),
-                fetch(`${API_URL}/api/admin/purchase-requests`, { headers })
-            ]);
+            // Sequential fetch to avoid concurrency issues and for better debugging
+            console.log('Fetching stats...');
+            const statsRes = await fetch(`${API_URL}/api/admin/stats`, { headers });
+            if (!statsRes.ok) throw new Error(statsRes.status === 401 ? 'Auth Error' : 'Stats Failed');
+            const statsData = await statsRes.json();
 
-            if (!statsRes.ok || !serviceRes.ok || !rentalRes.ok) {
-                if (statsRes.status === 401 || statsRes.status === 403) {
-                    localStorage.removeItem('adminToken');
-                    navigate('/admin');
-                    return;
-                }
-                throw new Error('Veri alınamadı');
+            console.log('Fetching service requests...');
+            const serviceRes = await fetch(`${API_URL}/api/admin/service-requests`, { headers });
+            if (!serviceRes.ok) throw new Error(serviceRes.status === 401 ? 'Auth Error' : 'Service Failed');
+            const serviceData = await serviceRes.json();
+
+            console.log('Fetching rental requests...');
+            const rentalRes = await fetch(`${API_URL}/api/admin/rental-requests`, { headers });
+            if (!rentalRes.ok) throw new Error(rentalRes.status === 401 ? 'Auth Error' : 'Rental Failed');
+            const rentalData = await rentalRes.json();
+
+            console.log('Fetching purchase requests...');
+            console.log('Using headers:', headers);
+            const purchaseRes = await fetch(`${API_URL}/api/admin/purchase-requests`, { headers });
+
+            if (!purchaseRes.ok) {
+                console.error('Purchase fetch failed:', purchaseRes.status, await purchaseRes.text());
+                if (purchaseRes.status === 401) throw new Error('Auth Error');
             }
 
-            const [statsData, serviceData, rentalData, purchaseData] = await Promise.all([
-                statsRes.json(),
-                serviceRes.json(),
-                rentalRes.json(),
-                purchaseRes.ok ? purchaseRes.json() : { requests: [] }
-            ]);
+            const purchaseData = purchaseRes.ok ? await purchaseRes.json() : { requests: [] };
 
             setStats(statsData);
             setServiceRequests(serviceData.requests || []);
@@ -93,6 +97,12 @@ const AdminPanelPage = () => {
             setPurchaseRequests(purchaseData.requests || []);
 
         } catch (error) {
+            console.error('Fetch error:', error);
+            if (error.message === 'Auth Error' || error.message.includes('401')) {
+                localStorage.removeItem('adminToken');
+                navigate('/admin');
+                return;
+            }
             toast({ title: 'Hata', description: error.message, variant: 'destructive' });
         } finally {
             setLoading(false);
