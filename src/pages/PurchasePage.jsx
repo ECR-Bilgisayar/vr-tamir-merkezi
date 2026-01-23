@@ -24,8 +24,14 @@ const BANK_INFO = {
 };
 
 const PurchasePage = () => {
+    const [quantity, setQuantity] = useState(1);
     const [formData, setFormData] = useState({
         fullName: '',
+        invoiceType: 'individual', // individual or corporate
+        tcNo: '',
+        companyName: '',
+        taxOffice: '',
+        taxNo: '',
         email: '',
         phone: '',
         address: '',
@@ -39,7 +45,7 @@ const PurchasePage = () => {
     const { toast } = useToast();
 
     const selectedShipping = SHIPPING_OPTIONS.find(o => o.id === formData.deliveryMethod);
-    const totalPrice = PRODUCT.price + (selectedShipping?.price || 0);
+    const totalPrice = (PRODUCT.price * quantity) + (selectedShipping?.price || 0);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -71,8 +77,20 @@ const PurchasePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Basic validation
         if (!formData.fullName || !formData.email || !formData.phone) {
-            toast({ title: 'Hata', description: 'Lütfen tüm zorunlu alanları doldurun', variant: 'destructive' });
+            toast({ title: 'Hata', description: 'Lütfen temel bilgileri doldurun', variant: 'destructive' });
+            return;
+        }
+
+        // Invoice specific validation
+        if (formData.invoiceType === 'individual' && !formData.tcNo) {
+            toast({ title: 'Hata', description: 'Lütfen T.C. Kimlik numaranızı girin', variant: 'destructive' });
+            return;
+        }
+
+        if (formData.invoiceType === 'corporate' && (!formData.companyName || !formData.taxOffice || !formData.taxNo)) {
+            toast({ title: 'Hata', description: 'Lütfen firma ve vergi bilgelerini doldurun', variant: 'destructive' });
             return;
         }
 
@@ -89,6 +107,7 @@ const PurchasePage = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
+                    quantity,
                     productPrice: PRODUCT.price,
                     shippingPrice: selectedShipping.price,
                     totalPrice,
@@ -209,8 +228,8 @@ const PurchasePage = () => {
                                             <label
                                                 key={option.id}
                                                 className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all ${formData.deliveryMethod === option.id
-                                                        ? 'bg-purple-50 dark:bg-purple-500/10 border-2 border-purple-500'
-                                                        : 'bg-gray-50 dark:bg-white/5 border-2 border-transparent hover:border-purple-300'
+                                                    ? 'bg-purple-50 dark:bg-purple-500/10 border-2 border-purple-500'
+                                                    : 'bg-gray-50 dark:bg-white/5 border-2 border-transparent hover:border-purple-300'
                                                     }`}
                                             >
                                                 <input
@@ -285,10 +304,55 @@ const PurchasePage = () => {
                             onSubmit={handleSubmit}
                             className="space-y-6"
                         >
-                            {/* Contact Info */}
+                            {/* Quantity Selection */}
                             <div className="p-6 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">👤 İletişim Bilgileri</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📦 Adet Seçimi</h3>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-gray-600 dark:text-gray-400">Satın alınacak miktar:</span>
+                                    <select
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                                        className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:border-purple-500 outline-none"
+                                    >
+                                        {[...Array(10)].map((_, i) => (
+                                            <option key={i + 1} value={i + 1}>{i + 1} Adet</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Billing Info */}
+                            <div className="p-6 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">📄 Fatura ve Teslimat Bilgileri</h3>
+
+                                {/* Invoice Type Toggle */}
+                                <div className="flex gap-4 mb-6">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="invoiceType"
+                                            value="individual"
+                                            checked={formData.invoiceType === 'individual'}
+                                            onChange={handleInputChange}
+                                            className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <span className="text-gray-700 dark:text-gray-300">Bireysel</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="invoiceType"
+                                            value="corporate"
+                                            checked={formData.invoiceType === 'corporate'}
+                                            onChange={handleInputChange}
+                                            className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <span className="text-gray-700 dark:text-gray-300">Kurumsal</span>
+                                    </label>
+                                </div>
+
                                 <div className="space-y-4">
+                                    {/* Common Fields */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ad Soyad *</label>
                                         <input
@@ -300,6 +364,67 @@ const PurchasePage = () => {
                                             className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:border-purple-500 outline-none"
                                         />
                                     </div>
+
+                                    {/* Individual Specific */}
+                                    {formData.invoiceType === 'individual' && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">T.C. Kimlik No *</label>
+                                            <input
+                                                type="text"
+                                                name="tcNo"
+                                                maxLength="11"
+                                                value={formData.tcNo || ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '');
+                                                    setFormData(prev => ({ ...prev, tcNo: val }));
+                                                }}
+                                                required
+                                                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:border-purple-500 outline-none"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Corporate Specific */}
+                                    {formData.invoiceType === 'corporate' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Firma Adı *</label>
+                                                <input
+                                                    type="text"
+                                                    name="companyName"
+                                                    value={formData.companyName || ''}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:border-purple-500 outline-none"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vergi Dairesi *</label>
+                                                    <input
+                                                        type="text"
+                                                        name="taxOffice"
+                                                        value={formData.taxOffice || ''}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:border-purple-500 outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vergi No *</label>
+                                                    <input
+                                                        type="text"
+                                                        name="taxNo"
+                                                        value={formData.taxNo || ''}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:border-purple-500 outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-posta *</label>
@@ -324,6 +449,7 @@ const PurchasePage = () => {
                                             />
                                         </div>
                                     </div>
+
                                     {formData.deliveryMethod === 'kargo' && (
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teslimat Adresi *</label>
@@ -349,8 +475,8 @@ const PurchasePage = () => {
                                 </p>
 
                                 <label className={`block w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${receipt
-                                        ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
-                                        : 'border-gray-300 dark:border-white/20 hover:border-purple-500'
+                                    ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
+                                    : 'border-gray-300 dark:border-white/20 hover:border-purple-500'
                                     }`}>
                                     <input
                                         type="file"

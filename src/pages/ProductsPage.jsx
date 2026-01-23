@@ -83,7 +83,7 @@ const ProductsPage = () => {
 
   const handleBuyClick = (product) => {
     setIsDialogOpen(false);
-    navigate('/siparis', { state: { product } });
+    navigate('/satin-al', { state: { product } });
   };
 
   const handleGameVideoClick = (game) => {
@@ -151,7 +151,7 @@ const ProductsPage = () => {
                       Tamir Desteği
                     </div>
                   )}
-                  
+
                 </div>
 
                 <div className="p-5 bg-white dark:bg-transparent">
@@ -216,7 +216,7 @@ const ProductsPage = () => {
           <VisuallyHidden>
             <DialogTitle>{selectedProduct?.name || 'Ürün Detayı'}</DialogTitle>
           </VisuallyHidden>
-          
+
           {selectedProduct && (
             <>
               {/* SATILIK ÜRÜNLER */}
@@ -245,7 +245,7 @@ const ProductsPage = () => {
                         {selectedProduct.name}
                       </h2>
                       <p className="text-gray-600 dark:text-gray-400 text-sm">{selectedProduct.description}</p>
-                      
+
                       <div className="mt-4 p-4 bg-green-50 dark:bg-green-500/10 rounded-xl border border-green-200 dark:border-green-500/20">
                         <span className="text-3xl font-bold text-green-600 dark:text-green-400">
                           {selectedProduct.price?.toLocaleString('tr-TR')} ₺
@@ -270,8 +270,8 @@ const ProductsPage = () => {
                     </div>
 
                     <div className="mt-8">
-                      <Button 
-                        size="lg" 
+                      <Button
+                        size="lg"
                         onClick={() => handleBuyClick(selectedProduct)}
                         className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold"
                       >
@@ -293,7 +293,7 @@ const ProductsPage = () => {
                     >
                       <X className="w-5 h-5 text-gray-700 dark:text-white" />
                     </button>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                       <div className="bg-gray-100 dark:bg-white/5 flex items-center justify-center p-6 md:p-8">
                         <img
@@ -366,7 +366,7 @@ const ProductsPage = () => {
                     >
                       <X className="w-5 h-5 text-gray-700 dark:text-white" />
                     </button>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                       <div className="bg-gray-100 dark:bg-white/5 flex items-center justify-center p-6 md:p-8">
                         <img
@@ -400,7 +400,7 @@ const ProductsPage = () => {
                       <Info className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                       Teknik Özellikler
                     </h3>
-                    
+
                     {productSpecs[selectedProduct.id] ? (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {Object.entries(productSpecs[selectedProduct.id]).map(([key, value], index) => (
@@ -433,7 +433,7 @@ const ProductsPage = () => {
                       </div>
                     )}
 
-                    
+
                   </div>
                 </div>
               )}

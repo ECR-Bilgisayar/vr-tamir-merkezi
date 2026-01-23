@@ -429,5 +429,124 @@ export const sendPriceQuoteEmail = async (data) => {
   }
 };
 
+// Purchase Request Customer Email
+const getPurchaseCreatedCustomerEmail = (data) => ({
+  to: data.email,
+  cc: CC_EMAILS,
+  from: process.env.FROM_EMAIL,
+  subject: `VR Hijyen Bandı - Siparişiniz Alındı (#${data.purchaseId})`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
+        .tracking-number { font-size: 24px; font-weight: bold; color: #059669; text-align: center; padding: 15px; background: #ecfdf5; border-radius: 8px; margin: 20px 0; }
+        .total-price { font-size: 28px; font-weight: bold; color: #10b981; text-align: center; margin: 20px 0; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>🛒 Siparişiniz Alındı</h1>
+      </div>
+      <div class="content">
+        <p>Sayın <strong>${data.fullName}</strong>,</p>
+        <p>VR Hijyen Gözlük Bandı siparişiniz alınmıştır. Dekontunuz kontrol edildikten sonra siparişiniz onaylanacaktır.</p>
+        
+        <div class="tracking-number">
+          Sipariş No: ${data.purchaseId}
+        </div>
+        
+        <div class="info-box">
+          <h3 style="margin-top: 0; color: #059669;">Sipariş Özeti</h3>
+          <p><strong>Ürün:</strong> VR Hijyen Gözlük Bandı</p>
+          <p><strong>Adet:</strong> ${data.quantity}</p>
+          <p><strong>Teslimat:</strong> ${data.deliveryMethod === 'kargo' ? 'Kargo' : 'Elden Teslim'}</p>
+          ${data.deliveryMethod === 'kargo' ? `<p><strong>Adres:</strong> ${data.address}</p>` : ''}
+        </div>
+
+        <div class="total-price">
+          Toplam Tutar: ₺${data.totalPrice.toLocaleString('tr-TR')}
+        </div>
+        
+        <p>Siparişinizin durumunu aşağıdaki butona tıklayarak takip edebilirsiniz.</p>
+        
+        <p style="text-align: center;">
+          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px;">Sipariş Takibi →</a>
+        </p>
+      </div>
+      <div class="footer">
+        <p>VR Tamir Merkezi | Hijyen Çözümleri</p>
+      </div>
+    </body>
+    </html>
+  `
+});
+
+// Purchase Request Admin Email
+const getPurchaseCreatedAdminEmail = (data) => ({
+  to: process.env.ADMIN_EMAIL,
+  from: process.env.FROM_EMAIL,
+  subject: `💰 Yeni Sipariş - ${data.fullName} (#${data.purchaseId})`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #059669; color: white; padding: 15px; border-radius: 8px 8px 0 0; }
+        .content { background: #fff; padding: 20px; border: 1px solid #ddd; }
+        .btn { display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h2 style="margin: 0;">💰 Yeni Sipariş</h2>
+        </div>
+        <div class="content">
+          <p><strong>Sipariş No:</strong> ${data.purchaseId}</p>
+          <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+          
+          <h3>Müşteri</h3>
+          <p><strong>${data.fullName}</strong> (${data.invoiceType === 'corporate' ? 'Kurumsal' : 'Bireysel'})</p>
+          <p>📧 ${data.email} | 📞 ${data.phone}</p>
+          ${data.invoiceType === 'corporate' ? `<p>🏢 ${data.companyName} | ${data.taxOffice} / ${data.taxNo}</p>` : `<p>🆔 TC: ${data.tcNo}</p>`}
+          
+          <h3>Sipariş Detayı</h3>
+          <p>Adet: <strong>${data.quantity}</strong></p>
+          <p>Toplam Tutar: <strong>₺${data.totalPrice}</strong></p>
+          <p>Teslimat: <strong>${data.deliveryMethod}</strong></p>
+          <p>Adres: ${data.address || '-'}</p>
+          
+          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/admin" class="btn">Admin Paneline Git →</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+});
+
+export const sendPurchaseCreatedEmail = async (data) => {
+  try {
+    await sgMail.send(getPurchaseCreatedCustomerEmail(data));
+    console.log(`✉️ Purchase email sent to ${data.email}`);
+
+    await sgMail.send(getPurchaseCreatedAdminEmail(data));
+    console.log(`✉️ Admin purchase notification sent`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Purchase email error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export default sgMail;
 

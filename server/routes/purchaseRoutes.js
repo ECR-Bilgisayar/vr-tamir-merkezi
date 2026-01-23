@@ -1,14 +1,6 @@
-import express from 'express';
-import supabase from '../config/supabase.js';
+import { sendPurchaseCreatedEmail } from '../services/emailService.js';
 
-const router = express.Router();
-
-// Generate unique purchase ID
-const generatePurchaseId = () => {
-    const year = new Date().getFullYear();
-    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    return `PUR-${year}-${random}`;
-};
+// ... existing code ...
 
 // Create new purchase request
 router.post('/', async (req, res) => {
@@ -22,7 +14,13 @@ router.post('/', async (req, res) => {
             productPrice,
             shippingPrice,
             totalPrice,
-            receiptBase64
+            receiptBase64,
+            quantity,
+            invoiceType,
+            tcNo,
+            companyName,
+            taxOffice,
+            taxNo
         } = req.body;
 
         // Validate required fields
@@ -50,7 +48,13 @@ router.post('/', async (req, res) => {
                 shipping_price: shippingPrice,
                 total_price: totalPrice,
                 receipt_data: receiptBase64,
-                status: 'pending'
+                status: 'pending',
+                quantity: quantity || 1,
+                invoice_type: invoiceType || 'individual',
+                tc_no: tcNo,
+                company_name: companyName,
+                tax_office: taxOffice,
+                tax_no: taxNo
             }])
             .select()
             .single();
@@ -69,6 +73,23 @@ router.post('/', async (req, res) => {
                 new_status: 'pending',
                 notes: 'Sipariş oluşturuldu, dekont bekleniyor'
             }]);
+
+        // Send confirmation emails
+        sendPurchaseCreatedEmail({
+            purchaseId,
+            fullName,
+            email,
+            phone,
+            address,
+            deliveryMethod,
+            totalPrice,
+            quantity: quantity || 1,
+            invoiceType,
+            tcNo,
+            companyName,
+            taxOffice,
+            taxNo
+        });
 
         res.status(201).json({
             success: true,
