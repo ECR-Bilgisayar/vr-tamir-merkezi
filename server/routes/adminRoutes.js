@@ -592,10 +592,15 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
             return res.status(404).json({ error: 'Siparis bulunamadi' });
         }
 
-        // Eger receipt_url varsa direkt don
+        // NOT: Veritabanindaki URL (receipt_url) public bucket gerektirdigi icin
+        // eger bucket public degilse calismiyor ("Bucket not found").
+        // Bu yuzden her zaman Signed URL olusturmayi deniyoruz.
+
+        /* 
         if (request.receipt_url) {
             return res.json({ url: request.receipt_url });
-        }
+        } 
+        */
 
         // Create priority list of possible file names
         // 1. Exact match with extension from DB if possible (we don't store ext separately, so we try common ones)
