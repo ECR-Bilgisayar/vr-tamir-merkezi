@@ -21,19 +21,22 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware - CORS ayarı güncellendi
+// ✅ CORS Middleware - DÜZELTİLDİ (önce olmalı)
 app.use(cors({
   origin: [
-    'http://localhost:5173', // Local development
-    'http://localhost:5174', // Alternatif local port
-    'https://vr-tamir-merkezi-five.vercel.app', // Vercel frontend
-    'https://vrtamirmerkezi.com', // Özel domain
-    'https://www.vrtamirmerkezi.com' // www ile de çalışsın
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://vr-tamir-merkezi-five.vercel.app',
+    'https://vrtamirmerkezi.com',
+    'https://www.vrtamirmerkezi.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// ✅ Preflight requests için
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
