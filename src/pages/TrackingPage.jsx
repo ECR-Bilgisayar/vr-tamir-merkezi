@@ -180,8 +180,15 @@ const TrackingPage = () => {
                                             {result.request.service_id || result.request.rental_id}
                                         </p>
                                     </div>
-                                    <div className={`px-4 py-2 rounded-full text-white font-medium ${statusConfig[result.request.status]?.color || 'bg-gray-500'}`}>
-                                        {statusConfig[result.request.status]?.label || result.request.status}
+                                    <div className="flex items-center gap-2">
+                                        {result.request.callback_preference && (
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
+                                                📞 Geri Arama İstendi
+                                            </span>
+                                        )}
+                                        <div className={`px-4 py-2 rounded-full text-white font-medium ${statusConfig[result.request.status]?.color || 'bg-gray-500'}`}>
+                                            {statusConfig[result.request.status]?.label || result.request.status}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -195,6 +202,12 @@ const TrackingPage = () => {
                                             <div>
                                                 <p className="text-gray-500 dark:text-gray-400">Arıza Tipi</p>
                                                 <p className="font-semibold text-gray-900 dark:text-white">{result.request.fault_type}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Teslim Yöntemi</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">
+                                                    {result.request.delivery_method === 'kargo' ? '📦 Kargo' : '🏢 Elden Teslim'}
+                                                </p>
                                             </div>
                                         </>
                                     ) : (
@@ -219,11 +232,27 @@ const TrackingPage = () => {
                                     </div>
                                 </div>
 
+                                {/* Customer's Description */}
+                                {result.request.fault_description && (
+                                    <div className="mt-4 p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-2">📝 Arıza Açıklaması</p>
+                                        <p className="text-gray-700 dark:text-gray-300">{result.request.fault_description}</p>
+                                    </div>
+                                )}
+
                                 {/* Price Quote if available */}
                                 {result.request.price_quote && (
                                     <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-200 dark:border-orange-500/20">
                                         <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">💰 Fiyat Teklifi</p>
                                         <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">₺{result.request.price_quote.toLocaleString('tr-TR')}</p>
+                                    </div>
+                                )}
+
+                                {/* Admin Notes if available */}
+                                {result.request.admin_notes && (
+                                    <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-200 dark:border-purple-500/20">
+                                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">💬 Servis Notu</p>
+                                        <p className="text-gray-700 dark:text-gray-300">{result.request.admin_notes}</p>
                                     </div>
                                 )}
                             </div>

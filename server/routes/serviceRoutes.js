@@ -100,14 +100,15 @@ router.get('/track/:serviceId', async (req, res) => {
     try {
         const { serviceId } = req.params;
 
-        const { data: request, error } = await supabase
+        // Get request with id for history lookup
+        const { data: fullRequest, error: requestError } = await supabase
             .from('service_requests')
-            .select('service_id, device, fault_type, status, created_at, updated_at')
-            .eq('service_id', serviceId)
+            .select('*')
+            .eq('service_id', serviceId.toUpperCase())
             .single();
 
-        if (error || !request) {
-            return res.status(404).json({ error: 'Talep bulunamadı' });
+        if (requestError || !fullRequest) {
+            return res.status(404).json({ error: 'Talep bulunamadı. Takip numaranızı kontrol edin.' });
         }
 
         // Get status history
@@ -115,11 +116,24 @@ router.get('/track/:serviceId', async (req, res) => {
             .from('status_history')
             .select('new_status, notes, created_at')
             .eq('request_type', 'service')
-            .eq('request_id', request.id)
+            .eq('request_id', fullRequest.id)
             .order('created_at', { ascending: false });
 
+        // Return comprehensive request info
         res.json({
-            request,
+            request: {
+                service_id: fullRequest.service_id,
+                device: fullRequest.device,
+                fault_type: fullRequest.fault_type,
+                fault_description: fullRequest.fault_description,
+                delivery_method: fullRequest.delivery_method,
+                callback_preference: fullRequest.callback_preference,
+                status: fullRequest.status,
+                price_quote: fullRequest.price_quote,
+                admin_notes: fullRequest.admin_notes,
+                created_at: fullRequest.created_at,
+                updated_at: fullRequest.updated_at
+            },
             history: history || []
         });
 

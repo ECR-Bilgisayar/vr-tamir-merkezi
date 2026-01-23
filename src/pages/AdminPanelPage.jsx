@@ -456,53 +456,156 @@ const AdminPanelPage = () => {
                                     </button>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-sm text-gray-400 mb-1">Takip No</p>
-                                        <p className="text-purple-400 font-mono">{selectedRequest.service_id || selectedRequest.rental_id}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-400 mb-1">Müşteri</p>
-                                        <p className="text-white">{selectedRequest.full_name}</p>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm text-gray-400 block mb-2">Yeni Durum</label>
-                                        <select
-                                            value={newStatus}
-                                            onChange={(e) => setNewStatus(e.target.value)}
-                                            className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none"
-                                            style={{ colorScheme: 'dark' }}
-                                        >
-                                            {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                                                <option key={key} value={key} className="bg-gray-800 text-white">{config.label}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {activeTab === 'service' && newStatus === 'quoted' && (
+                                <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                                    {/* Header Info */}
+                                    <div className="flex items-center justify-between">
                                         <div>
-                                            <label className="text-sm text-gray-400 block mb-2">Fiyat Teklifi (₺)</label>
-                                            <input
-                                                type="number"
-                                                value={priceQuote}
-                                                onChange={(e) => setPriceQuote(e.target.value)}
-                                                placeholder="0.00"
-                                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none"
-                                            />
+                                            <p className="text-sm text-gray-400 mb-1">Takip No</p>
+                                            <p className="text-purple-400 font-mono text-lg">{selectedRequest.service_id || selectedRequest.rental_id}</p>
+                                        </div>
+                                        {selectedRequest.callback_preference && (
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 animate-pulse">
+                                                📞 Geri Arama İstedi
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Customer Info */}
+                                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                        <h4 className="text-sm font-semibold text-white mb-3">👤 Müşteri Bilgileri</h4>
+                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <p className="text-gray-400">Ad Soyad</p>
+                                                <p className="text-white font-medium">{selectedRequest.full_name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-400">Telefon</p>
+                                                <p className="text-white font-medium">{selectedRequest.phone}</p>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <p className="text-gray-400">E-posta</p>
+                                                <p className="text-white font-medium">{selectedRequest.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Request Details */}
+                                    {activeTab === 'service' && (
+                                        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                            <h4 className="text-sm font-semibold text-white mb-3">🔧 Servis Detayları</h4>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <p className="text-gray-400">Cihaz</p>
+                                                    <p className="text-white font-medium">{selectedRequest.device}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-400">Arıza Tipi</p>
+                                                    <p className="text-white font-medium">{selectedRequest.fault_type}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-400">Teslim Yöntemi</p>
+                                                    <p className="text-white font-medium">
+                                                        {selectedRequest.delivery_method === 'kargo' ? '📦 Kargo' : '🏢 Elden Teslim'}
+                                                    </p>
+                                                </div>
+                                                {selectedRequest.price_quote && (
+                                                    <div>
+                                                        <p className="text-gray-400">Mevcut Teklif</p>
+                                                        <p className="text-orange-400 font-bold">₺{selectedRequest.price_quote.toLocaleString('tr-TR')}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {selectedRequest.fault_description && (
+                                                <div className="mt-3 pt-3 border-t border-white/10">
+                                                    <p className="text-gray-400 text-sm mb-1">📝 Müşteri Arıza Açıklaması</p>
+                                                    <p className="text-gray-200 text-sm bg-gray-800/50 p-3 rounded-lg">{selectedRequest.fault_description}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
-                                    <div>
-                                        <label className="text-sm text-gray-400 block mb-2">Not (Opsiyonel)</label>
-                                        <textarea
-                                            value={statusNote}
-                                            onChange={(e) => setStatusNote(e.target.value)}
-                                            placeholder="Durum değişikliği hakkında not..."
-                                            rows={3}
-                                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none resize-none"
-                                        />
+                                    {/* Rental Details */}
+                                    {activeTab === 'rental' && selectedRequest.company && (
+                                        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                            <h4 className="text-sm font-semibold text-white mb-3">🏢 Kiralama Detayları</h4>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <p className="text-gray-400">Firma</p>
+                                                    <p className="text-white font-medium">{selectedRequest.company}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-400">Ürün</p>
+                                                    <p className="text-white font-medium">{selectedRequest.product_name || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-400">Adet</p>
+                                                    <p className="text-white font-medium">{selectedRequest.quantity || '-'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-400">Süre</p>
+                                                    <p className="text-white font-medium">{selectedRequest.duration ? `${selectedRequest.duration} Gün` : '-'}</p>
+                                                </div>
+                                            </div>
+                                            {selectedRequest.message && (
+                                                <div className="mt-3 pt-3 border-t border-white/10">
+                                                    <p className="text-gray-400 text-sm mb-1">📝 Müşteri Mesajı</p>
+                                                    <p className="text-gray-200 text-sm bg-gray-800/50 p-3 rounded-lg">{selectedRequest.message}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Existing Admin Notes */}
+                                    {selectedRequest.admin_notes && (
+                                        <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                                            <p className="text-purple-400 text-sm font-medium mb-1">💬 Mevcut Admin Notu</p>
+                                            <p className="text-gray-200 text-sm">{selectedRequest.admin_notes}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Status Update Section */}
+                                    <div className="pt-4 border-t border-white/10">
+                                        <h4 className="text-sm font-semibold text-white mb-3">🔄 Durum Güncelle</h4>
+
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-sm text-gray-400 block mb-2">Yeni Durum</label>
+                                                <select
+                                                    value={newStatus}
+                                                    onChange={(e) => setNewStatus(e.target.value)}
+                                                    className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none"
+                                                    style={{ colorScheme: 'dark' }}
+                                                >
+                                                    {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+                                                        <option key={key} value={key} className="bg-gray-800 text-white">{config.label}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {activeTab === 'service' && newStatus === 'quoted' && (
+                                                <div>
+                                                    <label className="text-sm text-gray-400 block mb-2">Fiyat Teklifi (₺)</label>
+                                                    <input
+                                                        type="number"
+                                                        value={priceQuote}
+                                                        onChange={(e) => setPriceQuote(e.target.value)}
+                                                        placeholder="0.00"
+                                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div>
+                                                <label className="text-sm text-gray-400 block mb-2">Not Ekle (Müşteri görebilir)</label>
+                                                <textarea
+                                                    value={statusNote}
+                                                    onChange={(e) => setStatusNote(e.target.value)}
+                                                    placeholder="Durum değişikliği hakkında not..."
+                                                    rows={3}
+                                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-purple-500 outline-none resize-none"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="flex gap-3 pt-4">
