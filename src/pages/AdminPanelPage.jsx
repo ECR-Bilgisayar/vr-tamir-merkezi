@@ -831,7 +831,7 @@ const AdminPanelPage = () => {
                                             style={{ colorScheme: 'dark' }}
                                         >
                                             {getStatusOptions().map(status => (
-                                                <option key={status} value={status}>
+                                                <option key={status} value={status} className="bg-gray-900 text-white">
                                                     {STATUS_CONFIG[status]?.label || status}
                                                 </option>
                                             ))}
