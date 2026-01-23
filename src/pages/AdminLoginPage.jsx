@@ -15,22 +15,12 @@ const AdminLoginPage = () => {
 
     const API_URL = import.meta.env.VITE_API_URL || '';
 
-    // Check if already logged in
+    // Check if already logged in - ✅ BASİTLEŞTİRİLDİ
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (token) {
-            // Verify token - ✅ DÜZELTİLDİ
-            fetch(`${API_URL}/admin/verify`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-                .then(res => {
-                    if (res.ok) {
-                        navigate('/admin/panel');
-                    } else {
-                        localStorage.removeItem('adminToken');
-                    }
-                })
-                .catch(() => localStorage.removeItem('adminToken'));
+            // Direkt panel'e yönlendir (verify olmadan)
+            navigate('/admin/panel');
         }
     }, [navigate]);
 
@@ -40,7 +30,6 @@ const AdminLoginPage = () => {
         setLoading(true);
 
         try {
-            // ✅ DÜZELTİLDİ: /api/ fazladan eklenmemeli
             const response = await fetch(`${API_URL}/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
