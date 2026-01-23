@@ -36,7 +36,8 @@ const TrackingPage = () => {
 
         try {
             const API_URL = import.meta.env.VITE_API_URL || '';
-            const response = await fetch(`${API_URL}/api/service-requests/track/${trackingId.trim()}`);
+            // ✅ DÜZELTİLDİ: /api/ fazladan eklenmemeli
+            const response = await fetch(`${API_URL}/service-requests/track/${trackingId.trim()}`);
             const data = await response.json();
 
             if (!response.ok) {
