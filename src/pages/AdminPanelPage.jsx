@@ -353,16 +353,7 @@ const AdminPanelPage = () => {
                             <Package className="w-4 h-4 inline mr-2" />
                             Kiralama ({rentalRequests.length})
                         </button>
-                        <button
-                            onClick={() => setActiveTab('purchase')}
-                            className={`px-6 py-3 rounded-xl font-medium transition-all ${activeTab === 'purchase'
-                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
-                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                                }`}
-                        >
-                            <ShoppingBag className="w-4 h-4 inline mr-2" />
-                            Satın Alma ({purchaseRequests.length})
-                        </button>
+
                     </div>
 
                     {/* Filters */}
