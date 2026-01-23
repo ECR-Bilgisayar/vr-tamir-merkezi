@@ -310,7 +310,10 @@ const AdminPanelPage = () => {
                     {/* Stats Cards */}
                     {stats && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div className="p-4 bg-gradient-to-br from-yellow-500/20 to-orange-500/10 rounded-xl border border-yellow-500/20">
+                            <div
+                                onClick={() => setStatusFilter('pending')}
+                                className="p-4 bg-gradient-to-br from-yellow-500/20 to-orange-500/10 rounded-xl border border-yellow-500/20 cursor-pointer hover:border-yellow-500/40 transition-all active:scale-95"
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-yellow-500/20 rounded-lg">
                                         <Clock className="w-5 h-5 text-yellow-500" />
@@ -323,7 +326,10 @@ const AdminPanelPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-xl border border-blue-500/20">
+                            <div
+                                onClick={() => { setActiveTab('service'); setStatusFilter('all'); }}
+                                className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-xl border border-blue-500/20 cursor-pointer hover:border-blue-500/40 transition-all active:scale-95"
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-500/20 rounded-lg">
                                         <Wrench className="w-5 h-5 text-blue-500" />
@@ -334,7 +340,10 @@ const AdminPanelPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/10 rounded-xl border border-purple-500/20">
+                            <div
+                                onClick={() => { setActiveTab('rental'); setStatusFilter('all'); }}
+                                className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/10 rounded-xl border border-purple-500/20 cursor-pointer hover:border-purple-500/40 transition-all active:scale-95"
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-purple-500/20 rounded-lg">
                                         <Package className="w-5 h-5 text-purple-500" />
@@ -345,7 +354,10 @@ const AdminPanelPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/10 rounded-xl border border-green-500/20">
+                            <div
+                                onClick={() => { setActiveTab('purchase'); setStatusFilter('all'); }}
+                                className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/10 rounded-xl border border-green-500/20 cursor-pointer hover:border-green-500/40 transition-all active:scale-95"
+                            >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-green-500/20 rounded-lg">
                                         <ShoppingBag className="w-5 h-5 text-green-500" />
