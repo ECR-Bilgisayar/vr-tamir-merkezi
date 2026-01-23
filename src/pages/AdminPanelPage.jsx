@@ -256,7 +256,7 @@ const AdminPanelPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
                     <RefreshCw className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
                     <p className="text-gray-400">Yukleniyor...</p>
@@ -271,7 +271,7 @@ const AdminPanelPage = () => {
                 <title>Admin Panel | VR Tamir Merkezi</title>
             </Helmet>
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+            <div className="min-h-screen bg-gray-900">
                 {/* Header */}
                 <header className="sticky top-0 z-40 bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
                     <div className="max-w-7xl mx-auto px-4 py-4">
@@ -370,8 +370,8 @@ const AdminPanelPage = () => {
                                 key={tab.id}
                                 onClick={() => { setActiveTab(tab.id); setStatusFilter('all'); }}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${activeTab === tab.id
-                                        ? 'bg-purple-500 text-white'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-purple-500 text-white'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />

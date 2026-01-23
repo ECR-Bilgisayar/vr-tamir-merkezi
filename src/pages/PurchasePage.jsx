@@ -317,8 +317,8 @@ const PurchasePage = () => {
                                         <label
                                             key={option.id}
                                             className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.deliveryMethod === option.id
-                                                    ? 'border-purple-500 bg-purple-500/5'
-                                                    : 'border-gray-200 dark:border-white/10 hover:border-purple-500/50'
+                                                ? 'border-purple-500 bg-purple-500/5'
+                                                : 'border-gray-200 dark:border-white/10 hover:border-purple-500/50'
                                                 }`}
                                         >
                                             <input
@@ -331,8 +331,8 @@ const PurchasePage = () => {
                                             />
                                             <div className="flex items-start gap-3">
                                                 <div className={`p-2 rounded-lg ${formData.deliveryMethod === option.id
-                                                        ? 'bg-purple-500 text-white'
-                                                        : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400'
+                                                    ? 'bg-purple-500 text-white'
+                                                    : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400'
                                                     }`}>
                                                     <option.icon className="w-5 h-5" />
                                                 </div>
@@ -403,8 +403,8 @@ const PurchasePage = () => {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, invoiceType: type.id }))}
                                             className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${formData.invoiceType === type.id
-                                                    ? 'bg-purple-500 text-white'
-                                                    : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/20'
+                                                ? 'bg-purple-500 text-white'
+                                                : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/20'
                                                 }`}
                                         >
                                             {type.label}
@@ -568,8 +568,8 @@ const PurchasePage = () => {
                                 </p>
 
                                 <label className={`block w-full p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${receipt
-                                        ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
-                                        : 'border-gray-300 dark:border-white/20 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/5'
+                                    ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
+                                    : 'border-gray-300 dark:border-white/20 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/5'
                                     }`}>
                                     <input
                                         type="file"
