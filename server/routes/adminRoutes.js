@@ -625,4 +625,28 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
     }
 });
 
+
+// TEST ENDPOINT
+router.get('/test-email', async (req, res) => {
+    const { sendDeviceReceivedEmail } = await import('../services/emailService.js');
+
+    console.log('🧪 Testing email...');
+    console.log('FROM_EMAIL:', process.env.FROM_EMAIL);
+
+    try {
+        const result = await sendDeviceReceivedEmail({
+            email: process.env.ADMIN_EMAIL,
+            fullName: 'Test User',
+            serviceId: 'TEST-001',
+            device: 'Test Device',
+            faultType: 'Test Fault'
+        });
+
+        res.json({ success: true, result });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
+
+
 export default router;
