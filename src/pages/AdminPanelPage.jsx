@@ -57,11 +57,10 @@ const AdminPanelPage = () => {
         try {
             const headers = { Authorization: `Bearer ${token}` };
 
-            // ✅ API_URL eklendi
-            const [statsRes, serviceRes, rentalRes] = await Promise.all([
-                fetch(`${API_URL}/admin/stats`, { headers }),
-                fetch(`${API_URL}/admin/service-requests`, { headers }),
-                fetch(`${API_URL}/admin/rental-requests`, { headers })
+                        const [statsRes, serviceRes, rentalRes] = await Promise.all([
+                fetch(`${API_URL}/api/admin/stats`, { headers }),
+                fetch(`${API_URL}/api/admin/service-requests`, { headers }),
+                fetch(`${API_URL}/api/admin/rental-requests`, { headers })
             ]);
 
             if (!statsRes.ok || !serviceRes.ok || !rentalRes.ok) {
@@ -99,10 +98,9 @@ const AdminPanelPage = () => {
         if (!selectedRequest || !newStatus) return;
 
         try {
-            // ✅ API_URL eklendi
-            const endpoint = activeTab === 'service'
-                ? `${API_URL}/admin/service-requests/${selectedRequest.id}/status`
-                : `${API_URL}/admin/rental-requests/${selectedRequest.id}/status`;
+                        const endpoint = activeTab === 'service'
+                ? `${API_URL}/api/admin/service-requests/${selectedRequest.id}/status`
+                : `${API_URL}/api/admin/rental-requests/${selectedRequest.id}/status`;
 
             const response = await fetch(endpoint, {
                 method: 'PATCH',
@@ -136,10 +134,9 @@ const AdminPanelPage = () => {
         if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
 
         try {
-            // ✅ API_URL eklendi
-            const endpoint = type === 'service'
-                ? `${API_URL}/admin/service-requests/${id}`
-                : `${API_URL}/admin/rental-requests/${id}`;
+                        const endpoint = type === 'service'
+                ? `${API_URL}/api/admin/service-requests/${id}`
+                : `${API_URL}/api/admin/rental-requests/${id}`;
 
             const response = await fetch(endpoint, {
                 method: 'DELETE',

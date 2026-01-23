@@ -106,8 +106,7 @@ const ServisPage = () => {
       };
 
       const API_URL = import.meta.env.VITE_API_URL || '';
-      // ✅ DÜZELTİLDİ: /api/ fazladan eklenmemeli
-      const response = await fetch(`${API_URL}/service-requests`, {
+      const response = await fetch(`${API_URL}/api/service-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
