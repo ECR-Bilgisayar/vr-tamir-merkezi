@@ -13,16 +13,25 @@ const generatePurchaseId = () => {
 
 // Upload receipt to Supabase Storage
 const uploadReceipt = async (base64Data, purchaseId) => {
+    console.log(`Starting receipt upload for ${purchaseId}...`);
     try {
+        if (!base64Data) {
+            console.error('Upload failed: base64Data is empty');
+            return null;
+        }
+
         // Base64'ten dosya olustur
         const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         if (!matches || matches.length !== 3) {
+            console.error('Upload failed: Invalid base64 format');
             throw new Error('Invalid base64 data');
         }
 
         const contentType = matches[1];
         const base64 = matches[2];
         const buffer = Buffer.from(base64, 'base64');
+        const fileSizeInBytes = buffer.length;
+        console.log(`File parsed. Type: ${contentType}, Size: ${fileSizeInBytes} bytes`);
 
         // Dosya uzantisini belirle
         const extension = contentType.includes('pdf') ? 'pdf' :
@@ -30,7 +39,8 @@ const uploadReceipt = async (base64Data, purchaseId) => {
 
         const fileName = `${purchaseId}.${extension}`;
 
-        // Supabase Storage'a yukle
+        // Upload to Supabase Storage
+        // NOTE: 'receipts' bucket must exist and be set to Public or allow Service Role writes
         const { data, error } = await supabase.storage
             .from('receipts')
             .upload(fileName, buffer, {
@@ -39,18 +49,37 @@ const uploadReceipt = async (base64Data, purchaseId) => {
             });
 
         if (error) {
-            console.error('Storage upload error:', error);
+            console.error('Storage upload error detail:', JSON.stringify(error, null, 2));
             throw error;
         }
 
-        // Signed URL olustur (1 yil gecerli)
-        const { data: urlData } = await supabase.storage
+        console.log('Upload successful. Path:', data.path);
+
+        // Get Public URL (if bucket is public) or Signed URL
+        // Trying Public URL first as it is cleaner for Admin Panel if bucket is public
+        const { data: publicUrlData } = supabase.storage
             .from('receipts')
-            .createSignedUrl(fileName, 60 * 60 * 24 * 365);
+            .getPublicUrl(fileName);
+
+        if (publicUrlData && publicUrlData.publicUrl) {
+            console.log('Generated Public URL:', publicUrlData.publicUrl);
+            return publicUrlData.publicUrl;
+        }
+
+        // Fallback to Signed URL if Public fails or is not preferred
+        const { data: urlData, error: signError } = await supabase.storage
+            .from('receipts')
+            .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
+
+        if (signError) {
+            console.error('Signed URL generation failed:', signError);
+            return null;
+        }
 
         return urlData?.signedUrl || null;
+
     } catch (error) {
-        console.error('Receipt upload error:', error);
+        console.error('Receipt upload CRITICAL error:', error);
         return null;
     }
 };
