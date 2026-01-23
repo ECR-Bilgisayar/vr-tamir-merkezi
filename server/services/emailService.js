@@ -1,9 +1,12 @@
 import sgMail from '@sendgrid/mail';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// API key kontrolü ve set etme
+if (!process.env.SENDGRID_API_KEY) {
+  console.error('❌ SENDGRID_API_KEY is not defined!');
+} else {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid API key set');
+}
 
 // CC Email addresses
 const CC_EMAILS = [process.env.CC_EMAIL, 'info@etkinlikbilgisayar.com'].filter(Boolean);
@@ -141,7 +144,7 @@ const getServiceRequestAdminEmail = (data) => ({
             ${data.faultDescription || 'Açıklama girilmedi.'}
           </div>
           
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/admin" class="btn">Admin Paneline Git →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/admin" class="btn">Admin Paneline Git →</a>
         </div>
       </div>
     </body>
@@ -149,7 +152,6 @@ const getServiceRequestAdminEmail = (data) => ({
   `
 });
 
-// Device Received Email - sent when device is received at service center
 const getDeviceReceivedEmail = (data) => ({
   to: data.email,
   cc: CC_EMAILS,
@@ -197,7 +199,7 @@ const getDeviceReceivedEmail = (data) => ({
         </ol>
         
         <p style="text-align: center;">
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" class="btn">Durumu Takip Et →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/takip" class="btn">Durumu Takip Et →</a>
         </p>
       </div>
       <div class="footer">
@@ -209,7 +211,6 @@ const getDeviceReceivedEmail = (data) => ({
   `
 });
 
-// Price Quote Email - sent when price quote is ready
 const getPriceQuoteEmail = (data) => ({
   to: data.email,
   cc: CC_EMAILS,
@@ -264,7 +265,7 @@ const getPriceQuoteEmail = (data) => ({
         <p>Lütfen bizimle iletişime geçerek teklifinizi onaylayın. Onayınız sonrası onarım işlemine başlanacaktır.</p>
         
         <p style="text-align: center;">
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" class="btn">Durumu Takip Et →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/takip" class="btn">Durumu Takip Et →</a>
         </p>
         
         <p style="color: #64748b; font-size: 14px; margin-top: 20px;">
@@ -362,7 +363,7 @@ const getRentalRequestAdminEmail = (data) => ({
             ${data.message || 'Mesaj girilmedi.'}
           </div>
           
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/admin" class="btn">Admin Paneline Git →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/admin" class="btn">Admin Paneline Git →</a>
         </div>
       </div>
     </body>
@@ -370,66 +371,6 @@ const getRentalRequestAdminEmail = (data) => ({
   `
 });
 
-// Send email functions
-export const sendServiceRequestEmails = async (data) => {
-  try {
-    // Send to customer
-    await sgMail.send(getServiceRequestCustomerEmail(data));
-    console.log(`✉️ Customer email sent to ${data.email}`);
-
-    // Send to admin
-    await sgMail.send(getServiceRequestAdminEmail(data));
-    console.log(`✉️ Admin notification sent`);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Email sending error:', error);
-    // Don't throw - email failure shouldn't break the request
-    return { success: false, error: error.message };
-  }
-};
-
-export const sendRentalRequestEmails = async (data) => {
-  try {
-    // Send to customer
-    await sgMail.send(getRentalRequestCustomerEmail(data));
-    console.log(`✉️ Customer email sent to ${data.email}`);
-
-    // Send to admin
-    await sgMail.send(getRentalRequestAdminEmail(data));
-    console.log(`✉️ Admin notification sent`);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Email sending error:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-// Status update emails
-export const sendDeviceReceivedEmail = async (data) => {
-  try {
-    await sgMail.send(getDeviceReceivedEmail(data));
-    console.log(`✉️ Device received email sent to ${data.email}`);
-    return { success: true };
-  } catch (error) {
-    console.error('Device received email error:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-export const sendPriceQuoteEmail = async (data) => {
-  try {
-    await sgMail.send(getPriceQuoteEmail(data));
-    console.log(`✉️ Price quote email sent to ${data.email}`);
-    return { success: true };
-  } catch (error) {
-    console.error('Price quote email error:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-// Purchase Request Customer Email
 const getPurchaseCreatedCustomerEmail = (data) => ({
   to: data.email,
   cc: CC_EMAILS,
@@ -477,7 +418,7 @@ const getPurchaseCreatedCustomerEmail = (data) => ({
         <p>Siparişinizin durumunu aşağıdaki butona tıklayarak takip edebilirsiniz.</p>
         
         <p style="text-align: center;">
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px;">Sipariş Takibi →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/takip" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px;">Sipariş Takibi →</a>
         </p>
       </div>
       <div class="footer">
@@ -488,7 +429,6 @@ const getPurchaseCreatedCustomerEmail = (data) => ({
   `
 });
 
-// Purchase Request Admin Email
 const getPurchaseCreatedAdminEmail = (data) => ({
   to: process.env.ADMIN_EMAIL,
   from: process.env.FROM_EMAIL,
@@ -525,7 +465,7 @@ const getPurchaseCreatedAdminEmail = (data) => ({
           <p>Teslimat: <strong>${data.deliveryMethod}</strong></p>
           <p>Adres: ${data.address || '-'}</p>
           
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/admin" class="btn">Admin Paneline Git →</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/admin" class="btn">Admin Paneline Git →</a>
         </div>
       </div>
     </body>
@@ -533,27 +473,11 @@ const getPurchaseCreatedAdminEmail = (data) => ({
   `
 });
 
-export const sendPurchaseCreatedEmail = async (data) => {
-  try {
-    await sgMail.send(getPurchaseCreatedCustomerEmail(data));
-    console.log(`✉️ Purchase email sent to ${data.email}`);
-
-    await sgMail.send(getPurchaseCreatedAdminEmail(data));
-    console.log(`✉️ Admin purchase notification sent`);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Purchase email error:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-// Purchase Status Update Email
 const getPurchaseStatusEmail = (data) => ({
   to: data.email,
   cc: CC_EMAILS,
   from: process.env.FROM_EMAIL,
-  subject: `VR Hijyen Bandi - Siparis Durumu Guncellendi (#${data.purchaseId})`,
+  subject: `VR Hijyen Bandı - Sipariş Durumu Güncellendi (#${data.purchaseId})`,
   html: `
     <!DOCTYPE html>
     <html>
@@ -574,11 +498,11 @@ const getPurchaseStatusEmail = (data) => ({
     </head>
     <body>
       <div class="header">
-        <h1>Siparis Durumu Guncellendi</h1>
+        <h1>Sipariş Durumu Güncellendi</h1>
       </div>
       <div class="content">
-        <p>Sayin <strong>${data.fullName}</strong>,</p>
-        <p><strong>#${data.purchaseId}</strong> numarali siparisizin durumu guncellendi.</p>
+        <p>Sayın <strong>${data.fullName}</strong>,</p>
+        <p><strong>#${data.purchaseId}</strong> numaralı siparişinizin durumu güncellendi.</p>
         
         <div style="text-align: center; margin: 30px 0;">
           <span class="status-badge status-${data.status}">${data.statusLabel}</span>
@@ -594,51 +518,150 @@ const getPurchaseStatusEmail = (data) => ({
         ${data.status === 'shipped' ? `
         <div class="info-box" style="border-left-color: #f59e0b;">
           <h4 style="margin-top: 0; color: #d97706;">Kargo Bilgisi</h4>
-          <p>Siparisimiz kargoya verilmistir. Kargo takip numaraniz SMS ile ayrica bildirilecektir.</p>
+          <p>Siparişiniz kargoya verilmiştir. Kargo takip numaranız SMS ile ayrıca bildirilecektir.</p>
         </div>
         ` : ''}
 
         ${data.status === 'delivered' ? `
         <div class="info-box" style="border-left-color: #10b981;">
           <h4 style="margin-top: 0; color: #059669;">Teslim Edildi</h4>
-          <p>Siparisimiz basariyla teslim edilmistir. Bizi tercih ettiginiz icin tesekkur ederiz!</p>
+          <p>Siparişiniz başarıyla teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz!</p>
         </div>
         ` : ''}
         
         <p style="text-align: center;">
-          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Siparis Takibi</a>
+          <a href="${process.env.SITE_URL || 'https://vrtamirmerkezi.com'}/takip" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Sipariş Takibi</a>
         </p>
       </div>
       <div class="footer">
-        <p>VR Tamir Merkezi | Hijyen Cozumleri</p>
+        <p>VR Tamir Merkezi | Hijyen Çözümleri</p>
       </div>
     </body>
     </html>
   `
 });
 
-export const sendPurchaseStatusEmail = async (data) => {
-  try {
-    const statusLabels = {
-      pending: 'Odeme Bekleniyor',
-      confirmed: 'Odeme Onaylandi',
-      preparing: 'Hazirlaniyor',
-      shipped: 'Kargoya Verildi',
-      delivered: 'Teslim Edildi',
-      cancelled: 'Iptal Edildi'
-    };
+// Send email functions
+export const sendServiceRequestEmails = async (data) => {
+  console.log('📧 Sending service request emails...');
+  console.log('API Key exists:', !!process.env.SENDGRID_API_KEY);
+  console.log('From email:', process.env.FROM_EMAIL);
 
+  try {
+    await sgMail.send(getServiceRequestCustomerEmail(data));
+    console.log(`✅ Customer email sent to ${data.email}`);
+
+    await sgMail.send(getServiceRequestAdminEmail(data));
+    console.log(`✅ Admin notification sent`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Email sending error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendRentalRequestEmails = async (data) => {
+  console.log('📧 Sending rental request emails...');
+
+  try {
+    await sgMail.send(getRentalRequestCustomerEmail(data));
+    console.log(`✅ Customer email sent to ${data.email}`);
+
+    await sgMail.send(getRentalRequestAdminEmail(data));
+    console.log(`✅ Admin notification sent`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Email sending error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendDeviceReceivedEmail = async (data) => {
+  console.log('📧 Sending device received email...');
+
+  try {
+    await sgMail.send(getDeviceReceivedEmail(data));
+    console.log(`✅ Device received email sent to ${data.email}`);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Device received email error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendPriceQuoteEmail = async (data) => {
+  console.log('📧 Sending price quote email...');
+
+  try {
+    await sgMail.send(getPriceQuoteEmail(data));
+    console.log(`✅ Price quote email sent to ${data.email}`);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Price quote email error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendPurchaseCreatedEmail = async (data) => {
+  console.log('📧 Sending purchase emails...');
+
+  try {
+    await sgMail.send(getPurchaseCreatedCustomerEmail(data));
+    console.log(`✅ Purchase email sent to ${data.email}`);
+
+    await sgMail.send(getPurchaseCreatedAdminEmail(data));
+    console.log(`✅ Admin purchase notification sent`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Purchase email error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendPurchaseStatusEmail = async (data) => {
+  console.log('📧 Sending purchase status email...');
+
+  const statusLabels = {
+    pending: 'Ödeme Bekleniyor',
+    confirmed: 'Ödeme Onaylandı',
+    preparing: 'Hazırlanıyor',
+    shipped: 'Kargoya Verildi',
+    delivered: 'Teslim Edildi',
+    cancelled: 'İptal Edildi'
+  };
+
+  try {
     await sgMail.send(getPurchaseStatusEmail({
       ...data,
       statusLabel: statusLabels[data.status] || data.status
     }));
-    console.log(`Purchase status email sent to ${data.email}`);
+    console.log(`✅ Purchase status email sent to ${data.email}`);
     return { success: true };
   } catch (error) {
-    console.error('Purchase status email error:', error);
+    console.error('❌ Purchase status email error:', error.message);
+    if (error.response) {
+      console.error('Response body:', JSON.stringify(error.response.body));
+    }
     return { success: false, error: error.message };
   }
 };
 
 export default sgMail;
-

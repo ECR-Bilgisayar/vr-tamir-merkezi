@@ -62,7 +62,7 @@ export const products = [
     ],
     stock: 'available',
     purchasable: true,
-    price: 799
+    price: 769
   },
   {
     id: 4,
@@ -127,7 +127,7 @@ export const products = [
     ],
     stock: 'available',
     purchasable: true,
-    price: 799
+    price: 769
   },
   {
     id: 6,

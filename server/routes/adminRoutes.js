@@ -2,10 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import supabase from '../config/supabase.js';
 import { authenticateToken, generateToken } from '../middleware/auth.js';
-import { sendDeviceReceivedEmail, sendPriceQuoteEmail } from '../services/emailService.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { sendDeviceReceivedEmail, sendPriceQuoteEmail, sendPurchaseStatusEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -39,17 +36,14 @@ router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Check against environment variables (single admin)
         if (username !== process.env.ADMIN_USERNAME) {
             return res.status(401).json({ error: 'Geçersiz kullanıcı adı veya şifre' });
         }
 
-        // Compare password (plain text comparison for simplicity with env var)
         if (password !== process.env.ADMIN_PASSWORD) {
             return res.status(401).json({ error: 'Geçersiz kullanıcı adı veya şifre' });
         }
 
-        // Generate JWT token
         const token = generateToken({ username, role: 'admin' });
 
         res.json({
@@ -72,7 +66,6 @@ router.get('/verify', authenticateToken, (req, res) => {
 // Get dashboard stats
 router.get('/stats', authenticateToken, async (req, res) => {
     try {
-        // Service request stats
         const { data: serviceRequests } = await supabase
             .from('service_requests')
             .select('status');
@@ -85,7 +78,6 @@ router.get('/stats', authenticateToken, async (req, res) => {
             ['repaired', 'shipped', 'delivered'].includes(r.status)
         ).length || 0;
 
-        // Rental request stats
         const { data: rentalRequests } = await supabase
             .from('rental_requests')
             .select('status');
@@ -96,21 +88,18 @@ router.get('/stats', authenticateToken, async (req, res) => {
         ).length || 0;
         const rentalCompleted = rentalRequests?.filter(r => r.status === 'completed').length || 0;
 
-        // Recent activity - Service requests
         const { data: recentServices } = await supabase
             .from('service_requests')
             .select('service_id, full_name, status, created_at')
             .order('created_at', { ascending: false })
             .limit(5);
 
-        // Recent activity - Rental requests
         const { data: recentRentals } = await supabase
             .from('rental_requests')
             .select('rental_id, full_name, status, created_at')
             .order('created_at', { ascending: false })
             .limit(5);
 
-        // Combine and sort recent activity
         const recentActivity = [
             ...(recentServices || []).map(r => ({ type: 'service', ref_id: r.service_id, ...r })),
             ...(recentRentals || []).map(r => ({ type: 'rental', ref_id: r.rental_id, ...r }))
@@ -194,7 +183,6 @@ router.get('/service-requests/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Talep bulunamadı' });
         }
 
-        // Get status history
         const { data: history } = await supabase
             .from('status_history')
             .select('*')
@@ -220,7 +208,6 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
         const { id } = req.params;
         const { status, notes, priceQuote } = req.body;
 
-        // Get current request with customer info for email
         const { data: currentRequest } = await supabase
             .from('service_requests')
             .select('*')
@@ -233,7 +220,6 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
 
         const oldStatus = currentRequest.status;
 
-        // Update status
         const updateData = { status };
         if (notes) updateData.admin_notes = notes;
         if (priceQuote) updateData.price_quote = priceQuote;
@@ -250,7 +236,6 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
             return res.status(500).json({ error: 'Güncelleme başarısız' });
         }
 
-        // Record status change in history
         await supabase
             .from('status_history')
             .insert([{
@@ -262,7 +247,7 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
                 changed_by: req.user.username
             }]);
 
-        // Send notification emails for specific status changes
+        // Email data
         const emailData = {
             email: currentRequest.email,
             fullName: currentRequest.full_name,
@@ -273,18 +258,24 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
             notes: notes
         };
 
-        // Send device received email
+        // Send device received email - WITH AWAIT
         if (status === 'received' && oldStatus !== 'received') {
-            sendDeviceReceivedEmail(emailData).catch(err =>
-                console.error('Device received email failed:', err)
-            );
+            try {
+                await sendDeviceReceivedEmail(emailData);
+                console.log('✅ Device received email sent');
+            } catch (err) {
+                console.error('❌ Device received email failed:', err);
+            }
         }
 
-        // Send price quote email
+        // Send price quote email - WITH AWAIT
         if (status === 'quoted' && oldStatus !== 'quoted') {
-            sendPriceQuoteEmail(emailData).catch(err =>
-                console.error('Price quote email failed:', err)
-            );
+            try {
+                await sendPriceQuoteEmail(emailData);
+                console.log('✅ Price quote email sent');
+            } catch (err) {
+                console.error('❌ Price quote email failed:', err);
+            }
         }
 
         res.json({
@@ -500,7 +491,6 @@ router.patch('/purchase-requests/:id/status', authenticateToken, async (req, res
         const { id } = req.params;
         const { status, notes } = req.body;
 
-        // Get current status
         const { data: currentRequest } = await supabase
             .from('purchase_requests')
             .select('*')
@@ -513,7 +503,6 @@ router.patch('/purchase-requests/:id/status', authenticateToken, async (req, res
 
         const oldStatus = currentRequest.status;
 
-        // Update status
         const updateData = { status };
         if (notes) updateData.admin_notes = notes;
 
@@ -529,7 +518,6 @@ router.patch('/purchase-requests/:id/status', authenticateToken, async (req, res
             return res.status(500).json({ error: 'Güncelleme başarısız' });
         }
 
-        // Record status change in history
         await supabase
             .from('status_history')
             .insert([{
@@ -540,6 +528,22 @@ router.patch('/purchase-requests/:id/status', authenticateToken, async (req, res
                 notes: notes || null,
                 changed_by: req.user.username
             }]);
+
+        // Send purchase status email - WITH AWAIT
+        if (oldStatus !== status && currentRequest.email) {
+            try {
+                await sendPurchaseStatusEmail({
+                    email: currentRequest.email,
+                    fullName: currentRequest.full_name,
+                    purchaseId: currentRequest.purchase_id,
+                    status: status,
+                    notes: notes
+                });
+                console.log('✅ Purchase status email sent');
+            } catch (err) {
+                console.error('❌ Purchase status email failed:', err);
+            }
+        }
 
         res.json({
             success: true,
@@ -589,22 +593,9 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
             .single();
 
         if (error || !request) {
-            return res.status(404).json({ error: 'Siparis bulunamadi' });
+            return res.status(404).json({ error: 'Sipariş bulunamadı' });
         }
 
-        // NOT: Veritabanindaki URL (receipt_url) public bucket gerektirdigi icin
-        // eger bucket public degilse calismiyor ("Bucket not found").
-        // Bu yuzden her zaman Signed URL olusturmayi deniyoruz.
-
-        /* 
-        if (request.receipt_url) {
-            return res.json({ url: request.receipt_url });
-        } 
-        */
-
-        // Create priority list of possible file names
-        // 1. Exact match with extension from DB if possible (we don't store ext separately, so we try common ones)
-        // 2. Try signed URLs for each type
         const possibleExtensions = ['jpg', 'png', 'pdf', 'jpeg'];
 
         for (const ext of possibleExtensions) {
@@ -613,11 +604,6 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
                 .createSignedUrl(`${request.purchase_id}.${ext}`, 60 * 60);
 
             if (data?.signedUrl) {
-                // Verify if the file actually exists by making a HEAD request or relying on Supabase (createSignedUrl doesn't check existence usually)
-                // Better approach: list files in bucket with prefix? No, simple try-error on frontend is messy.
-                // Supabase createSignedUrl DOES NOT return 404 if file missing, it just gives a link that 404s.
-                // So we should ideally list the file to see which one exists.
-
                 const { data: listData } = await supabase.storage
                     .from('receipts')
                     .list('', {
@@ -631,14 +617,12 @@ router.get('/purchase-requests/:id/receipt', authenticateToken, async (req, res)
             }
         }
 
-        // If no file found in storage list
         return res.status(404).json({ error: 'Dekont dosyası bulunamadı' });
 
     } catch (error) {
         console.error('Get receipt error:', error);
-        res.status(500).json({ error: 'Dekont alinamadi' });
+        res.status(500).json({ error: 'Dekont alınamadı' });
     }
 });
 
 export default router;
-
