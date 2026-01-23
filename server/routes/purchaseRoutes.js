@@ -116,12 +116,12 @@ router.post('/', async (req, res) => {
             .single();
 
         if (insertError) {
-            console.error('Supabase insert error:', insertError);
-            return res.status(500).json({ error: 'Veritabani hatasi' });
+            console.error('Supabase insert error details:', JSON.stringify(insertError, null, 2));
+            return res.status(500).json({ error: 'Veritabani hatasi: Sipariş kaydedilemedi.' });
         }
 
         // Record initial status in history
-        await supabase
+        const { error: historyError } = await supabase
             .from('status_history')
             .insert([{
                 request_type: 'purchase',
@@ -130,22 +130,34 @@ router.post('/', async (req, res) => {
                 notes: 'Siparis olusturuldu, dekont bekleniyor'
             }]);
 
+        if (historyError) {
+            console.error('Status history insert error:', historyError);
+        }
+
         // Send confirmation emails
-        sendPurchaseCreatedEmail({
-            purchaseId,
-            fullName,
-            email,
-            phone,
-            address,
-            deliveryMethod,
-            totalPrice,
-            quantity: quantity || 1,
-            invoiceType,
-            tcNo,
-            companyName,
-            taxOffice,
-            taxNo
-        });
+        try {
+            const emailResult = await sendPurchaseCreatedEmail({
+                purchaseId,
+                fullName,
+                email,
+                phone,
+                address,
+                deliveryMethod,
+                totalPrice,
+                quantity: quantity || 1,
+                invoiceType,
+                tcNo,
+                companyName,
+                taxOffice,
+                taxNo
+            });
+
+            if (!emailResult.success) {
+                console.error('Email sending failed but order created:', emailResult.error);
+            }
+        } catch (emailErr) {
+            console.error('Unexpected email error:', emailErr);
+        }
 
         res.status(201).json({
             success: true,
@@ -157,7 +169,7 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Purchase request error:', error);
+        console.error('Purchase request critical error:', error);
         res.status(500).json({ error: 'Sunucu hatasi. Lutfen tekrar deneyin.' });
     }
 });
