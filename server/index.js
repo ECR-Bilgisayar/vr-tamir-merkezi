@@ -12,8 +12,8 @@ import serviceRoutes from './routes/serviceRoutes.js';
 import rentalRoutes from './routes/rentalRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-// Import database to test connection
-import pool from './config/database.js';
+// Import Supabase to test connection
+import supabase from './config/supabase.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,17 +42,19 @@ app.use('/api/admin', adminRoutes);
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
     try {
-        // Test database connection
-        await pool.query('SELECT NOW()');
+        // Test Supabase connection
+        const { data, error } = await supabase.from('service_requests').select('count').limit(1);
+        
         res.json({
             status: 'ok',
             timestamp: new Date().toISOString(),
-            database: 'connected'
+            database: error ? 'error' : 'connected',
+            message: error ? error.message : 'Supabase bağlantısı aktif'
         });
     } catch (error) {
         res.status(500).json({
             status: 'error',
-            message: 'Database connection failed',
+            message: 'Supabase connection failed',
             error: error.message
         });
     }
@@ -85,13 +87,14 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
     console.log(`
-  ╔════════════════════════════════════════════╗
-  ║     VR Tamir Merkezi Backend Server        ║
-  ╠════════════════════════════════════════════╣
-  ║  🚀 Server running on port ${PORT}             ║
-  ║  📦 API: http://localhost:${PORT}/api          ║
-  ║  🔐 Admin: http://localhost:${PORT}/api/admin  ║
-  ╚════════════════════════════════════════════╝
+╔════════════════════════════════════════════╗
+║     VR Tamir Merkezi Backend Server        ║
+╠════════════════════════════════════════════╣
+║  🚀 Server: http://localhost:${PORT}            ║
+║  📦 API: http://localhost:${PORT}/api          ║
+║  🔐 Admin: http://localhost:${PORT}/api/admin  ║
+║  ✨ Database: Supabase                     ║
+╚════════════════════════════════════════════╝
   `);
 });
 

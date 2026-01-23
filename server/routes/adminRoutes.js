@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import pool from '../config/database.js';
+import supabase from '../config/supabase.js';
 import { authenticateToken, generateToken } from '../middleware/auth.js';
 import dotenv from 'dotenv';
 
@@ -72,39 +72,63 @@ router.get('/verify', authenticateToken, (req, res) => {
 router.get('/stats', authenticateToken, async (req, res) => {
     try {
         // Service request stats
-        const serviceStats = await pool.query(`
-      SELECT 
-        COUNT(*) FILTER (WHERE status = 'pending') as pending,
-        COUNT(*) FILTER (WHERE status IN ('contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing')) as in_progress,
-        COUNT(*) FILTER (WHERE status IN ('repaired', 'shipped', 'delivered')) as completed,
-        COUNT(*) as total
-      FROM service_requests
-    `);
+        const { data: serviceRequests } = await supabase
+            .from('service_requests')
+            .select('status');
+
+        const servicePending = serviceRequests?.filter(r => r.status === 'pending').length || 0;
+        const serviceInProgress = serviceRequests?.filter(r => 
+            ['contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing'].includes(r.status)
+        ).length || 0;
+        const serviceCompleted = serviceRequests?.filter(r => 
+            ['repaired', 'shipped', 'delivered'].includes(r.status)
+        ).length || 0;
 
         // Rental request stats
-        const rentalStats = await pool.query(`
-      SELECT 
-        COUNT(*) FILTER (WHERE status = 'pending') as pending,
-        COUNT(*) FILTER (WHERE status IN ('contacted', 'quoted', 'approved', 'active')) as in_progress,
-        COUNT(*) FILTER (WHERE status = 'completed') as completed,
-        COUNT(*) as total
-      FROM rental_requests
-    `);
+        const { data: rentalRequests } = await supabase
+            .from('rental_requests')
+            .select('status');
 
-        // Recent activity
-        const recentActivity = await pool.query(`
-      (SELECT 'service' as type, service_id as ref_id, full_name, status, created_at 
-       FROM service_requests ORDER BY created_at DESC LIMIT 5)
-      UNION ALL
-      (SELECT 'rental' as type, rental_id as ref_id, full_name, status, created_at 
-       FROM rental_requests ORDER BY created_at DESC LIMIT 5)
-      ORDER BY created_at DESC LIMIT 10
-    `);
+        const rentalPending = rentalRequests?.filter(r => r.status === 'pending').length || 0;
+        const rentalInProgress = rentalRequests?.filter(r => 
+            ['contacted', 'quoted', 'approved', 'active'].includes(r.status)
+        ).length || 0;
+        const rentalCompleted = rentalRequests?.filter(r => r.status === 'completed').length || 0;
+
+        // Recent activity - Service requests
+        const { data: recentServices } = await supabase
+            .from('service_requests')
+            .select('service_id, full_name, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        // Recent activity - Rental requests
+        const { data: recentRentals } = await supabase
+            .from('rental_requests')
+            .select('rental_id, full_name, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        // Combine and sort recent activity
+        const recentActivity = [
+            ...(recentServices || []).map(r => ({ type: 'service', ref_id: r.service_id, ...r })),
+            ...(recentRentals || []).map(r => ({ type: 'rental', ref_id: r.rental_id, ...r }))
+        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
 
         res.json({
-            service: serviceStats.rows[0],
-            rental: rentalStats.rows[0],
-            recentActivity: recentActivity.rows
+            service: {
+                pending: servicePending,
+                in_progress: serviceInProgress,
+                completed: serviceCompleted,
+                total: serviceRequests?.length || 0
+            },
+            rental: {
+                pending: rentalPending,
+                in_progress: rentalInProgress,
+                completed: rentalCompleted,
+                total: rentalRequests?.length || 0
+            },
+            recentActivity
         });
 
     } catch (error) {
@@ -119,46 +143,30 @@ router.get('/service-requests', authenticateToken, async (req, res) => {
         const { status, search, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
 
-        let query = 'SELECT * FROM service_requests WHERE 1=1';
-        const params = [];
-        let paramIndex = 1;
+        let query = supabase
+            .from('service_requests')
+            .select('*', { count: 'exact' });
 
         if (status && status !== 'all') {
-            query += ` AND status = $${paramIndex++}`;
-            params.push(status);
+            query = query.eq('status', status);
         }
 
         if (search) {
-            query += ` AND (full_name ILIKE $${paramIndex} OR email ILIKE $${paramIndex} OR service_id ILIKE $${paramIndex} OR phone ILIKE $${paramIndex})`;
-            params.push(`%${search}%`);
-            paramIndex++;
+            query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,service_id.ilike.%${search}%,phone.ilike.%${search}%`);
         }
 
-        query += ' ORDER BY created_at DESC';
-        query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
-        params.push(parseInt(limit), parseInt(offset));
+        const { data: requests, error, count } = await query
+            .order('created_at', { ascending: false })
+            .range(offset, offset + parseInt(limit) - 1);
 
-        const result = await pool.query(query, params);
-
-        // Get total count
-        let countQuery = 'SELECT COUNT(*) FROM service_requests WHERE 1=1';
-        const countParams = [];
-        let countIndex = 1;
-
-        if (status && status !== 'all') {
-            countQuery += ` AND status = $${countIndex++}`;
-            countParams.push(status);
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: 'Veriler alınamadı' });
         }
-        if (search) {
-            countQuery += ` AND (full_name ILIKE $${countIndex} OR email ILIKE $${countIndex} OR service_id ILIKE $${countIndex})`;
-            countParams.push(`%${search}%`);
-        }
-
-        const countResult = await pool.query(countQuery, countParams);
 
         res.json({
-            requests: result.rows,
-            total: parseInt(countResult.rows[0].count),
+            requests: requests || [],
+            total: count || 0,
             page: parseInt(page),
             limit: parseInt(limit),
             statusLabels: SERVICE_STATUS_LABELS
@@ -175,26 +183,27 @@ router.get('/service-requests/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
 
-        const result = await pool.query(
-            'SELECT * FROM service_requests WHERE id = $1',
-            [id]
-        );
+        const { data: request, error } = await supabase
+            .from('service_requests')
+            .select('*')
+            .eq('id', id)
+            .single();
 
-        if (result.rows.length === 0) {
+        if (error || !request) {
             return res.status(404).json({ error: 'Talep bulunamadı' });
         }
 
         // Get status history
-        const historyResult = await pool.query(
-            `SELECT * FROM status_history 
-       WHERE request_type = 'service' AND request_id = $1 
-       ORDER BY created_at DESC`,
-            [id]
-        );
+        const { data: history } = await supabase
+            .from('status_history')
+            .select('*')
+            .eq('request_type', 'service')
+            .eq('request_id', id)
+            .order('created_at', { ascending: false });
 
         res.json({
-            request: result.rows[0],
-            history: historyResult.rows,
+            request,
+            history: history || [],
             statusLabels: SERVICE_STATUS_LABELS
         });
 
@@ -211,48 +220,51 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
         const { status, notes, priceQuote } = req.body;
 
         // Get current status
-        const currentResult = await pool.query(
-            'SELECT status FROM service_requests WHERE id = $1',
-            [id]
-        );
+        const { data: currentRequest } = await supabase
+            .from('service_requests')
+            .select('status')
+            .eq('id', id)
+            .single();
 
-        if (currentResult.rows.length === 0) {
+        if (!currentRequest) {
             return res.status(404).json({ error: 'Talep bulunamadı' });
         }
 
-        const oldStatus = currentResult.rows[0].status;
+        const oldStatus = currentRequest.status;
 
         // Update status
-        let updateQuery = 'UPDATE service_requests SET status = $1';
-        const updateParams = [status];
-        let paramIndex = 2;
+        const updateData = { status };
+        if (notes) updateData.admin_notes = notes;
+        if (priceQuote) updateData.price_quote = priceQuote;
 
-        if (notes) {
-            updateQuery += `, admin_notes = $${paramIndex++}`;
-            updateParams.push(notes);
+        const { data: updatedRequest, error } = await supabase
+            .from('service_requests')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Update error:', error);
+            return res.status(500).json({ error: 'Güncelleme başarısız' });
         }
-
-        if (priceQuote) {
-            updateQuery += `, price_quote = $${paramIndex++}`;
-            updateParams.push(priceQuote);
-        }
-
-        updateQuery += ` WHERE id = $${paramIndex} RETURNING *`;
-        updateParams.push(id);
-
-        const result = await pool.query(updateQuery, updateParams);
 
         // Record status change in history
-        await pool.query(
-            `INSERT INTO status_history (request_type, request_id, old_status, new_status, notes, changed_by)
-       VALUES ('service', $1, $2, $3, $4, $5)`,
-            [id, oldStatus, status, notes || null, req.user.username]
-        );
+        await supabase
+            .from('status_history')
+            .insert([{
+                request_type: 'service',
+                request_id: parseInt(id),
+                old_status: oldStatus,
+                new_status: status,
+                notes: notes || null,
+                changed_by: req.user.username
+            }]);
 
         res.json({
             success: true,
             message: 'Durum güncellendi',
-            request: result.rows[0]
+            request: updatedRequest
         });
 
     } catch (error) {
@@ -267,29 +279,29 @@ router.get('/rental-requests', authenticateToken, async (req, res) => {
         const { status, search, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
 
-        let query = 'SELECT * FROM rental_requests WHERE 1=1';
-        const params = [];
-        let paramIndex = 1;
+        let query = supabase
+            .from('rental_requests')
+            .select('*');
 
         if (status && status !== 'all') {
-            query += ` AND status = $${paramIndex++}`;
-            params.push(status);
+            query = query.eq('status', status);
         }
 
         if (search) {
-            query += ` AND (full_name ILIKE $${paramIndex} OR company ILIKE $${paramIndex} OR email ILIKE $${paramIndex} OR rental_id ILIKE $${paramIndex})`;
-            params.push(`%${search}%`);
-            paramIndex++;
+            query = query.or(`full_name.ilike.%${search}%,company.ilike.%${search}%,email.ilike.%${search}%,rental_id.ilike.%${search}%`);
         }
 
-        query += ' ORDER BY created_at DESC';
-        query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
-        params.push(parseInt(limit), parseInt(offset));
+        const { data: requests, error } = await query
+            .order('created_at', { ascending: false })
+            .range(offset, offset + parseInt(limit) - 1);
 
-        const result = await pool.query(query, params);
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: 'Veriler alınamadı' });
+        }
 
         res.json({
-            requests: result.rows,
+            requests: requests || [],
             statusLabels: RENTAL_STATUS_LABELS
         });
 
@@ -305,32 +317,47 @@ router.patch('/rental-requests/:id/status', authenticateToken, async (req, res) 
         const { id } = req.params;
         const { status, notes } = req.body;
 
-        const currentResult = await pool.query(
-            'SELECT status FROM rental_requests WHERE id = $1',
-            [id]
-        );
+        const { data: currentRequest } = await supabase
+            .from('rental_requests')
+            .select('status')
+            .eq('id', id)
+            .single();
 
-        if (currentResult.rows.length === 0) {
+        if (!currentRequest) {
             return res.status(404).json({ error: 'Talep bulunamadı' });
         }
 
-        const oldStatus = currentResult.rows[0].status;
+        const oldStatus = currentRequest.status;
 
-        const result = await pool.query(
-            'UPDATE rental_requests SET status = $1, admin_notes = COALESCE($2, admin_notes) WHERE id = $3 RETURNING *',
-            [status, notes, id]
-        );
+        const updateData = { status };
+        if (notes) updateData.admin_notes = notes;
 
-        await pool.query(
-            `INSERT INTO status_history (request_type, request_id, old_status, new_status, notes, changed_by)
-       VALUES ('rental', $1, $2, $3, $4, $5)`,
-            [id, oldStatus, status, notes || null, req.user.username]
-        );
+        const { data: updatedRequest, error } = await supabase
+            .from('rental_requests')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            return res.status(500).json({ error: 'Güncelleme başarısız' });
+        }
+
+        await supabase
+            .from('status_history')
+            .insert([{
+                request_type: 'rental',
+                request_id: parseInt(id),
+                old_status: oldStatus,
+                new_status: status,
+                notes: notes || null,
+                changed_by: req.user.username
+            }]);
 
         res.json({
             success: true,
             message: 'Durum güncellendi',
-            request: result.rows[0]
+            request: updatedRequest
         });
 
     } catch (error) {
@@ -344,8 +371,16 @@ router.delete('/service-requests/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
 
-        await pool.query('DELETE FROM status_history WHERE request_type = $1 AND request_id = $2', ['service', id]);
-        await pool.query('DELETE FROM service_requests WHERE id = $1', [id]);
+        await supabase
+            .from('status_history')
+            .delete()
+            .eq('request_type', 'service')
+            .eq('request_id', id);
+
+        await supabase
+            .from('service_requests')
+            .delete()
+            .eq('id', id);
 
         res.json({ success: true, message: 'Talep silindi' });
 
@@ -360,8 +395,16 @@ router.delete('/rental-requests/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
 
-        await pool.query('DELETE FROM status_history WHERE request_type = $1 AND request_id = $2', ['rental', id]);
-        await pool.query('DELETE FROM rental_requests WHERE id = $1', [id]);
+        await supabase
+            .from('status_history')
+            .delete()
+            .eq('request_type', 'rental')
+            .eq('request_id', id);
+
+        await supabase
+            .from('rental_requests')
+            .delete()
+            .eq('id', id);
 
         res.json({ success: true, message: 'Talep silindi' });
 

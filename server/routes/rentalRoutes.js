@@ -1,5 +1,5 @@
 import express from 'express';
-import pool from '../config/database.js';
+import supabase from '../config/supabase.js';
 import { sendRentalRequestEmails } from '../services/emailService.js';
 
 const router = express.Router();
@@ -33,23 +33,38 @@ router.post('/', async (req, res) => {
 
         const rentalId = generateRentalId();
 
-        // Insert into database
-        const result = await pool.query(
-            `INSERT INTO rental_requests 
-       (rental_id, full_name, company, email, phone, product_name, quantity, duration, message, callback_preference)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING *`,
-            [rentalId, fullName, company, email, phone, productName, quantity, duration, message, callbackPreference || false]
-        );
+        // Insert into Supabase
+        const { data: newRequest, error: insertError } = await supabase
+            .from('rental_requests')
+            .insert([{
+                rental_id: rentalId,
+                full_name: fullName,
+                company,
+                email,
+                phone,
+                product_name: productName,
+                quantity,
+                duration,
+                message,
+                callback_preference: callbackPreference || false
+            }])
+            .select()
+            .single();
 
-        const newRequest = result.rows[0];
+        if (insertError) {
+            console.error('Supabase insert error:', insertError);
+            return res.status(500).json({ error: 'Veritabanı hatası' });
+        }
 
         // Record initial status in history
-        await pool.query(
-            `INSERT INTO status_history (request_type, request_id, new_status, notes)
-       VALUES ('rental', $1, 'pending', 'Talep oluşturuldu')`,
-            [newRequest.id]
-        );
+        await supabase
+            .from('status_history')
+            .insert([{
+                request_type: 'rental',
+                request_id: newRequest.id,
+                new_status: 'pending',
+                notes: 'Talep oluşturuldu'
+            }]);
 
         // Send emails
         sendRentalRequestEmails({
