@@ -440,4 +440,142 @@ router.delete('/rental-requests/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// =====================
+// PURCHASE REQUESTS
+// =====================
+
+const PURCHASE_STATUS_LABELS = {
+    pending: 'Ödeme Bekleniyor',
+    confirmed: 'Ödeme Onaylandı',
+    preparing: 'Hazırlanıyor',
+    shipped: 'Kargoya Verildi',
+    delivered: 'Teslim Edildi',
+    cancelled: 'İptal Edildi'
+};
+
+// Get all purchase requests
+router.get('/purchase-requests', authenticateToken, async (req, res) => {
+    try {
+        const { status, search, page = 1, limit = 20 } = req.query;
+        const offset = (page - 1) * limit;
+
+        let query = supabase
+            .from('purchase_requests')
+            .select('*', { count: 'exact' });
+
+        if (status && status !== 'all') {
+            query = query.eq('status', status);
+        }
+
+        if (search) {
+            query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,purchase_id.ilike.%${search}%,phone.ilike.%${search}%`);
+        }
+
+        const { data: requests, error, count } = await query
+            .order('created_at', { ascending: false })
+            .range(offset, offset + parseInt(limit) - 1);
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: 'Veriler alınamadı' });
+        }
+
+        res.json({
+            requests: requests || [],
+            total: count || 0,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            statusLabels: PURCHASE_STATUS_LABELS
+        });
+
+    } catch (error) {
+        console.error('Get purchase requests error:', error);
+        res.status(500).json({ error: 'Veriler alınamadı' });
+    }
+});
+
+// Update purchase request status
+router.patch('/purchase-requests/:id/status', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, notes } = req.body;
+
+        // Get current status
+        const { data: currentRequest } = await supabase
+            .from('purchase_requests')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (!currentRequest) {
+            return res.status(404).json({ error: 'Sipariş bulunamadı' });
+        }
+
+        const oldStatus = currentRequest.status;
+
+        // Update status
+        const updateData = { status };
+        if (notes) updateData.admin_notes = notes;
+
+        const { data: updatedRequest, error } = await supabase
+            .from('purchase_requests')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Update error:', error);
+            return res.status(500).json({ error: 'Güncelleme başarısız' });
+        }
+
+        // Record status change in history
+        await supabase
+            .from('status_history')
+            .insert([{
+                request_type: 'purchase',
+                request_id: parseInt(id),
+                old_status: oldStatus,
+                new_status: status,
+                notes: notes || null,
+                changed_by: req.user.username
+            }]);
+
+        res.json({
+            success: true,
+            message: 'Durum güncellendi',
+            request: updatedRequest
+        });
+
+    } catch (error) {
+        console.error('Update purchase status error:', error);
+        res.status(500).json({ error: 'Güncelleme başarısız' });
+    }
+});
+
+// Delete purchase request
+router.delete('/purchase-requests/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await supabase
+            .from('status_history')
+            .delete()
+            .eq('request_type', 'purchase')
+            .eq('request_id', id);
+
+        await supabase
+            .from('purchase_requests')
+            .delete()
+            .eq('id', id);
+
+        res.json({ success: true, message: 'Sipariş silindi' });
+
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).json({ error: 'Silme işlemi başarısız' });
+    }
+});
+
 export default router;
+

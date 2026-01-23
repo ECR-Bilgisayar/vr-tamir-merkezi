@@ -14,6 +14,7 @@ import AdminPanelPage from '@/pages/AdminPanelPage';
 import KiralaPage from '@/pages/KiralaPage';
 import ServisPage from '@/pages/ServisPage';
 import TrackingPage from '@/pages/TrackingPage';
+import PurchasePage from '@/pages/PurchasePage';
 import { Toaster } from '@/components/ui/toaster';
 import CheckoutPage from '@/pages/CheckoutPage';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/servis" element={<ServisPage />} />
                 <Route path="/takip" element={<TrackingPage />} />
                 <Route path="/siparis" element={<CheckoutPage />} />
+                <Route path="/satin-al" element={<PurchasePage />} />
                 <Route path="/gizlilik" element={<PrivacyPolicyPage />} />
                 <Route path="/kvkk" element={<KVKKPage />} />
                 <Route path="/kullanim-kosullari" element={<TermsPage />} />

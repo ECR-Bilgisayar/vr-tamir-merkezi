@@ -10,6 +10,7 @@ dotenv.config();
 // Import routes
 import serviceRoutes from './routes/serviceRoutes.js';
 import rentalRoutes from './routes/rentalRoutes.js';
+import purchaseRoutes from './routes/purchaseRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
 // Import Supabase to test connection
@@ -23,16 +24,16 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ CORS Middleware - DÜZELTİLDİ (önce olmalı)
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://vr-tamir-merkezi-five.vercel.app',
-    'https://vrtamirmerkezi.com',
-    'https://www.vrtamirmerkezi.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://vr-tamir-merkezi-five.vercel.app',
+        'https://vrtamirmerkezi.com',
+        'https://www.vrtamirmerkezi.com'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // ✅ Preflight requests için
@@ -52,6 +53,7 @@ if (process.env.NODE_ENV !== 'production') {
 // API Routes
 app.use('/api/service-requests', serviceRoutes);
 app.use('/api/rental-requests', rentalRoutes);
+app.use('/api/purchases', purchaseRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
@@ -59,7 +61,7 @@ app.get('/api/health', async (req, res) => {
     try {
         // Test Supabase connection
         const { data, error } = await supabase.from('service_requests').select('count').limit(1);
-        
+
         res.json({
             status: 'ok',
             timestamp: new Date().toISOString(),
@@ -86,6 +88,7 @@ app.get('/', (req, res) => {
             health: '/api/health',
             serviceRequests: '/api/service-requests',
             rentalRequests: '/api/rental-requests',
+            purchases: '/api/purchases',
             admin: '/api/admin'
         }
     });

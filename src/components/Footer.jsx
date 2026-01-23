@@ -106,9 +106,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/urunler" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors flex items-center gap-1">
-
-                  VR Hijyen Gözlük Bandı
+                <Link to="/satin-al" className="text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 text-sm font-medium transition-colors flex items-center gap-1">
+                  🛒 VR Hijyen Gözlük Bandı Satın Al
                 </Link>
               </li>
               <li>

@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, Trash2, Download, LogOut, RefreshCw, ChevronDown,
     Wrench, Package, Clock, CheckCircle, XCircle, Phone, Mail,
-    AlertCircle, TrendingUp, Users, Calendar, Eye, X, MessageSquare, Copy
+    AlertCircle, TrendingUp, Users, Calendar, Eye, X, MessageSquare, Copy,
+    ShoppingBag, Image, CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -21,13 +22,19 @@ const STATUS_CONFIG = {
     repaired: { label: 'Onarım Tamamlandı', color: 'bg-emerald-500', icon: CheckCircle },
     shipped: { label: 'Kargoya Verildi', color: 'bg-teal-500', icon: Package },
     delivered: { label: 'Teslim Edildi', color: 'bg-green-600', icon: CheckCircle },
-    cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: XCircle }
+    cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: XCircle },
+    // Purchase statuses
+    confirmed: { label: 'Ödeme Onaylandı', color: 'bg-green-500', icon: CreditCard },
+    preparing: { label: 'Hazırlanıyor', color: 'bg-blue-500', icon: Package },
+    active: { label: 'Aktif', color: 'bg-emerald-500', icon: CheckCircle },
+    completed: { label: 'Tamamlandı', color: 'bg-green-600', icon: CheckCircle }
 };
 
 const AdminPanelPage = () => {
     const [activeTab, setActiveTab] = useState('service');
     const [serviceRequests, setServiceRequests] = useState([]);
     const [rentalRequests, setRentalRequests] = useState([]);
+    const [purchaseRequests, setPurchaseRequests] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,10 +64,11 @@ const AdminPanelPage = () => {
         try {
             const headers = { Authorization: `Bearer ${token}` };
 
-            const [statsRes, serviceRes, rentalRes] = await Promise.all([
+            const [statsRes, serviceRes, rentalRes, purchaseRes] = await Promise.all([
                 fetch(`${API_URL}/api/admin/stats`, { headers }),
                 fetch(`${API_URL}/api/admin/service-requests`, { headers }),
-                fetch(`${API_URL}/api/admin/rental-requests`, { headers })
+                fetch(`${API_URL}/api/admin/rental-requests`, { headers }),
+                fetch(`${API_URL}/api/admin/purchase-requests`, { headers })
             ]);
 
             if (!statsRes.ok || !serviceRes.ok || !rentalRes.ok) {
@@ -72,15 +80,17 @@ const AdminPanelPage = () => {
                 throw new Error('Veri alınamadı');
             }
 
-            const [statsData, serviceData, rentalData] = await Promise.all([
+            const [statsData, serviceData, rentalData, purchaseData] = await Promise.all([
                 statsRes.json(),
                 serviceRes.json(),
-                rentalRes.json()
+                rentalRes.json(),
+                purchaseRes.ok ? purchaseRes.json() : { requests: [] }
             ]);
 
             setStats(statsData);
             setServiceRequests(serviceData.requests || []);
             setRentalRequests(rentalData.requests || []);
+            setPurchaseRequests(purchaseData.requests || []);
 
         } catch (error) {
             toast({ title: 'Hata', description: error.message, variant: 'destructive' });
@@ -134,9 +144,14 @@ const AdminPanelPage = () => {
         if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
 
         try {
-            const endpoint = type === 'service'
-                ? `${API_URL}/api/admin/service-requests/${id}`
-                : `${API_URL}/api/admin/rental-requests/${id}`;
+            let endpoint;
+            if (type === 'service') {
+                endpoint = `${API_URL}/api/admin/service-requests/${id}`;
+            } else if (type === 'rental') {
+                endpoint = `${API_URL}/api/admin/rental-requests/${id}`;
+            } else {
+                endpoint = `${API_URL}/api/admin/purchase-requests/${id}`;
+            }
 
             const response = await fetch(endpoint, {
                 method: 'DELETE',
@@ -153,13 +168,20 @@ const AdminPanelPage = () => {
         }
     };
 
-    const filteredRequests = (activeTab === 'service' ? serviceRequests : rentalRequests)
+    const getRequestsList = () => {
+        if (activeTab === 'service') return serviceRequests;
+        if (activeTab === 'rental') return rentalRequests;
+        return purchaseRequests;
+    };
+
+    const filteredRequests = getRequestsList()
         .filter(req => {
             const matchesSearch = searchTerm === '' ||
                 req.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.service_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                req.rental_id?.toLowerCase().includes(searchTerm.toLowerCase());
+                req.rental_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                req.purchase_id?.toLowerCase().includes(searchTerm.toLowerCase());
 
             const matchesStatus = statusFilter === 'all' || req.status === statusFilter;
 
@@ -289,7 +311,7 @@ const AdminPanelPage = () => {
                     )}
 
                     {/* Tabs */}
-                    <div className="flex gap-2 mb-6">
+                    <div className="flex gap-2 mb-6 flex-wrap">
                         <button
                             onClick={() => setActiveTab('service')}
                             className={`px-6 py-3 rounded-xl font-medium transition-all ${activeTab === 'service'
@@ -298,7 +320,7 @@ const AdminPanelPage = () => {
                                 }`}
                         >
                             <Wrench className="w-4 h-4 inline mr-2" />
-                            Servis Talepleri ({serviceRequests.length})
+                            Servis ({serviceRequests.length})
                         </button>
                         <button
                             onClick={() => setActiveTab('rental')}
@@ -308,7 +330,17 @@ const AdminPanelPage = () => {
                                 }`}
                         >
                             <Package className="w-4 h-4 inline mr-2" />
-                            Kiralama Talepleri ({rentalRequests.length})
+                            Kiralama ({rentalRequests.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('purchase')}
+                            className={`px-6 py-3 rounded-xl font-medium transition-all ${activeTab === 'purchase'
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                }`}
+                        >
+                            <ShoppingBag className="w-4 h-4 inline mr-2" />
+                            Satın Alma ({purchaseRequests.length})
                         </button>
                     </div>
 
@@ -367,17 +399,23 @@ const AdminPanelPage = () => {
                                             <div className="flex-1 space-y-2">
                                                 <div className="flex items-center gap-3 flex-wrap">
                                                     <button
-                                                        onClick={() => copyToClipboard(request.service_id || request.rental_id)}
+                                                        onClick={() => copyToClipboard(request.service_id || request.rental_id || request.purchase_id)}
                                                         className="text-sm font-mono text-purple-400 hover:text-purple-300 flex items-center gap-1 hover:bg-purple-500/10 px-2 py-1 rounded-lg transition-all"
                                                         title="Tıkla ve kopyala"
                                                     >
-                                                        {request.service_id || request.rental_id}
+                                                        {request.service_id || request.rental_id || request.purchase_id}
                                                         <Copy className="w-3 h-3" />
                                                     </button>
                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${statusConfig.color}`}>
                                                         <StatusIcon className="w-3 h-3 inline mr-1" />
                                                         {statusConfig.label}
                                                     </span>
+                                                    {/* Callback Badge */}
+                                                    {request.callback_preference && (
+                                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 animate-pulse">
+                                                            📞 Geri Ara
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-white">{request.full_name}</h3>
                                                 <div className="flex flex-wrap gap-4 text-sm text-gray-400">
@@ -394,15 +432,40 @@ const AdminPanelPage = () => {
                                                         {formatDate(request.created_at)}
                                                     </span>
                                                 </div>
+                                                {/* Service specific info */}
                                                 {activeTab === 'service' && (
-                                                    <p className="text-sm text-gray-300">
-                                                        <strong>Cihaz:</strong> {request.device} | <strong>Arıza:</strong> {request.fault_type}
-                                                    </p>
+                                                    <div className="space-y-1">
+                                                        <p className="text-sm text-gray-300">
+                                                            <strong>Cihaz:</strong> {request.device} | <strong>Arıza:</strong> {request.fault_type}
+                                                        </p>
+                                                        {request.fault_description && (
+                                                            <p className="text-xs text-gray-500 truncate max-w-md" title={request.fault_description}>
+                                                                📝 {request.fault_description.substring(0, 80)}{request.fault_description.length > 80 ? '...' : ''}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 )}
+                                                {/* Rental specific info */}
                                                 {activeTab === 'rental' && request.company && (
                                                     <p className="text-sm text-gray-300">
                                                         <strong>Firma:</strong> {request.company}
                                                     </p>
+                                                )}
+                                                {/* Purchase specific info */}
+                                                {activeTab === 'purchase' && (
+                                                    <div className="flex flex-wrap gap-3 text-sm">
+                                                        <span className="text-green-400 font-bold">₺{request.total_price?.toLocaleString('tr-TR')}</span>
+                                                        <span className="text-gray-400">{request.delivery_method === 'kargo' ? '📦 Kargo' : '🏢 Elden'}</span>
+                                                        {request.receipt_data && (
+                                                            <button
+                                                                onClick={() => window.open(request.receipt_data, '_blank')}
+                                                                className="text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                                                            >
+                                                                <Image className="w-4 h-4" />
+                                                                Dekont
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </div>
 
