@@ -11,6 +11,51 @@ const generateRentalId = () => {
     return `RNT-${year}-${random}`;
 };
 
+// Track rental request by rental_id (public endpoint)
+router.get('/track/:rentalId', async (req, res) => {
+    try {
+        const { rentalId } = req.params;
+
+        // Get rental request
+        const { data: request, error } = await supabase
+            .from('rental_requests')
+            .select('*')
+            .eq('rental_id', rentalId.toUpperCase())
+            .single();
+
+        if (error || !request) {
+            return res.status(404).json({ error: 'Talep bulunamadı. Takip numaranızı kontrol edin.' });
+        }
+
+        // Get status history
+        const { data: history } = await supabase
+            .from('status_history')
+            .select('*')
+            .eq('request_type', 'rental')
+            .eq('request_id', request.id)
+            .order('created_at', { ascending: false });
+
+        res.json({
+            request: {
+                rental_id: request.rental_id,
+                status: request.status,
+                company: request.company,
+                full_name: request.full_name,
+                product_name: request.product_name,
+                quantity: request.quantity,
+                duration: request.duration,
+                created_at: request.created_at,
+                updated_at: request.updated_at
+            },
+            history: history || []
+        });
+
+    } catch (error) {
+        console.error('Track rental error:', error);
+        res.status(500).json({ error: 'Sorgulama sırasında bir hata oluştu' });
+    }
+});
+
 // Create new rental request
 router.post('/', async (req, res) => {
     try {
@@ -96,3 +141,4 @@ router.post('/', async (req, res) => {
 });
 
 export default router;
+

@@ -1,19 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Zap, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Package, ShoppingBag } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-gradient-to-b from-gray-100 to-gray-200 dark:from-[#0a0e27] dark:to-black border-t border-gray-300 dark:border-white/5">
+      {/* Tracking Banner - Subtle banner matching site theme */}
+      <div className="bg-purple-500/10 dark:bg-purple-500/5 border-b border-purple-500/20 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link
+            to="/takip"
+            className="flex items-center justify-center gap-2 text-purple-700 dark:text-purple-400 font-medium hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
+          >
+            <Package className="w-5 h-5" />
+            <span>📦 Sipariş / Servis Takip</span>
+            <span className="text-purple-500 dark:text-purple-500/70">— Durumunuzu buradan sorgulayın →</span>
+          </Link>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
+              <img src="/sadece-logo.png" alt="VR Kiralama Logo" className="w-10 h-10 rounded-lg" />
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 VR Kiralama
               </span>
@@ -79,18 +91,24 @@ const Footer = () => {
             <h3 className="text-gray-900 dark:text-white font-semibold mb-4">Hizmetler</h3>
             <ul className="space-y-2">
               <li>
+                <Link to="/takip" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 text-sm font-medium transition-colors">
+                  Servis Takip
+                </Link>
+              </li>
+              <li>
                 <Link to="/servis" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
                   VR Servis & Onarım
                 </Link>
               </li>
               <li>
-                <Link to="/takip" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
-                  🔍 Servis Takip
+                <Link to="/kirala" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+                  VR Gözlük Kiralama
                 </Link>
               </li>
               <li>
-                <Link to="/kirala" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
-                  VR Gözlük Kiralama
+                <Link to="/urunler" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors flex items-center gap-1">
+
+                  VR Hijyen Gözlük Bandı
                 </Link>
               </li>
               <li>
@@ -124,13 +142,13 @@ const Footer = () => {
               © {currentYear} VR Tamir Merkezi. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-6">
-              <Link to="#" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+              <Link to="/gizlilik" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
                 Gizlilik Politikası
               </Link>
-              <Link to="#" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+              <Link to="/kullanim-kosullari" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
                 Kullanım Koşulları
               </Link>
-              <Link to="#" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
+              <Link to="/kvkk" className="text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors">
                 KVKK
               </Link>
             </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CTAFloatButton from '@/components/CTAFloatButton';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 const MainLayout = ({ children }) => {
   return (
@@ -11,7 +12,7 @@ const MainLayout = ({ children }) => {
         {children}
       </main>
       <Footer />
-      
+      <ScrollToTopButton />
     </div>
   );
 };

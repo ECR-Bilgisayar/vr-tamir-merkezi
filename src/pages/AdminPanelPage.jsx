@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, Trash2, Download, LogOut, RefreshCw, ChevronDown,
     Wrench, Package, Clock, CheckCircle, XCircle, Phone, Mail,
-    AlertCircle, TrendingUp, Users, Calendar, Eye, X, MessageSquare
+    AlertCircle, TrendingUp, Users, Calendar, Eye, X, MessageSquare, Copy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -57,7 +57,7 @@ const AdminPanelPage = () => {
         try {
             const headers = { Authorization: `Bearer ${token}` };
 
-                        const [statsRes, serviceRes, rentalRes] = await Promise.all([
+            const [statsRes, serviceRes, rentalRes] = await Promise.all([
                 fetch(`${API_URL}/api/admin/stats`, { headers }),
                 fetch(`${API_URL}/api/admin/service-requests`, { headers }),
                 fetch(`${API_URL}/api/admin/rental-requests`, { headers })
@@ -98,7 +98,7 @@ const AdminPanelPage = () => {
         if (!selectedRequest || !newStatus) return;
 
         try {
-                        const endpoint = activeTab === 'service'
+            const endpoint = activeTab === 'service'
                 ? `${API_URL}/api/admin/service-requests/${selectedRequest.id}/status`
                 : `${API_URL}/api/admin/rental-requests/${selectedRequest.id}/status`;
 
@@ -134,7 +134,7 @@ const AdminPanelPage = () => {
         if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
 
         try {
-                        const endpoint = type === 'service'
+            const endpoint = type === 'service'
                 ? `${API_URL}/api/admin/service-requests/${id}`
                 : `${API_URL}/api/admin/rental-requests/${id}`;
 
@@ -180,6 +180,31 @@ const AdminPanelPage = () => {
         });
     };
 
+    const copyToClipboard = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast({ title: 'Kopyalandı!', description: `${text} panoya kopyalandı.` });
+        } catch (err) {
+            toast({ title: 'Hata', description: 'Kopyalama başarısız', variant: 'destructive' });
+        }
+    };
+
+    const handleStatCardClick = (filterType) => {
+        setActiveTab('service');
+        if (filterType === 'pending') {
+            setStatusFilter('pending');
+        } else if (filterType === 'in_progress') {
+            setStatusFilter('all');
+            // Filter manually for in-progress statuses
+            const inProgressStatuses = ['contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing'];
+            setSearchTerm('');
+        } else if (filterType === 'completed') {
+            setStatusFilter('delivered');
+        } else {
+            setStatusFilter('all');
+        }
+    };
+
     return (
         <>
             <Helmet>
@@ -217,7 +242,8 @@ const AdminPanelPage = () => {
                     {stats && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                                className="p-4 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/20">
+                                onClick={() => handleStatCardClick('pending')}
+                                className="p-4 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/20 cursor-pointer hover:scale-105 hover:border-yellow-500/50 transition-all">
                                 <div className="flex items-center gap-3">
                                     <Clock className="w-8 h-8 text-yellow-500" />
                                     <div>
@@ -227,7 +253,8 @@ const AdminPanelPage = () => {
                                 </div>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                                className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/20">
+                                onClick={() => handleStatCardClick('in_progress')}
+                                className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/20 cursor-pointer hover:scale-105 hover:border-blue-500/50 transition-all">
                                 <div className="flex items-center gap-3">
                                     <Wrench className="w-8 h-8 text-blue-500" />
                                     <div>
@@ -237,7 +264,8 @@ const AdminPanelPage = () => {
                                 </div>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                                className="p-4 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/20">
+                                onClick={() => handleStatCardClick('completed')}
+                                className="p-4 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/20 cursor-pointer hover:scale-105 hover:border-green-500/50 transition-all">
                                 <div className="flex items-center gap-3">
                                     <CheckCircle className="w-8 h-8 text-green-500" />
                                     <div>
@@ -247,7 +275,8 @@ const AdminPanelPage = () => {
                                 </div>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                                className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/20">
+                                onClick={() => handleStatCardClick('all')}
+                                className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/20 cursor-pointer hover:scale-105 hover:border-purple-500/50 transition-all">
                                 <div className="flex items-center gap-3">
                                     <TrendingUp className="w-8 h-8 text-purple-500" />
                                     <div>
@@ -337,9 +366,14 @@ const AdminPanelPage = () => {
                                             {/* Main Info */}
                                             <div className="flex-1 space-y-2">
                                                 <div className="flex items-center gap-3 flex-wrap">
-                                                    <span className="text-sm font-mono text-purple-400">
+                                                    <button
+                                                        onClick={() => copyToClipboard(request.service_id || request.rental_id)}
+                                                        className="text-sm font-mono text-purple-400 hover:text-purple-300 flex items-center gap-1 hover:bg-purple-500/10 px-2 py-1 rounded-lg transition-all"
+                                                        title="Tıkla ve kopyala"
+                                                    >
                                                         {request.service_id || request.rental_id}
-                                                    </span>
+                                                        <Copy className="w-3 h-3" />
+                                                    </button>
                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${statusConfig.color}`}>
                                                         <StatusIcon className="w-3 h-3 inline mr-1" />
                                                         {statusConfig.label}

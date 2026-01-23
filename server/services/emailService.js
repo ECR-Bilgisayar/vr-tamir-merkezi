@@ -5,10 +5,13 @@ dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// CC Email addresses
+const CC_EMAILS = [process.env.CC_EMAIL, 'info@etkinlikbilgisayar.com'].filter(Boolean);
+
 // Email templates
 const getServiceRequestCustomerEmail = (data) => ({
   to: data.email,
-  cc: process.env.CC_EMAIL,
+  cc: CC_EMAILS,
   from: process.env.FROM_EMAIL,
   subject: `VR Tamir Merkezi - Servis Talebiniz Alındı (#${data.serviceId})`,
   html: `
@@ -146,9 +149,141 @@ const getServiceRequestAdminEmail = (data) => ({
   `
 });
 
+// Device Received Email - sent when device is received at service center
+const getDeviceReceivedEmail = (data) => ({
+  to: data.email,
+  cc: CC_EMAILS,
+  from: process.env.FROM_EMAIL,
+  subject: `VR Tamir Merkezi - Cihazınız Teslim Alındı (#${data.serviceId})`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6366f1; }
+        .tracking-number { font-size: 24px; font-weight: bold; color: #6366f1; text-align: center; padding: 15px; background: #eef2ff; border-radius: 8px; margin: 20px 0; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+        .btn { display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>📦 Cihazınız Teslim Alındı</h1>
+      </div>
+      <div class="content">
+        <p>Sayın <strong>${data.fullName}</strong>,</p>
+        <p>Cihazınız servis merkezimize başarıyla teslim alınmıştır. Arıza tespiti işlemi başlamıştır.</p>
+        
+        <div class="tracking-number">
+          Takip No: ${data.serviceId}
+        </div>
+        
+        <div class="info-box">
+          <h3 style="margin-top: 0; color: #6366f1;">Cihaz Bilgileri</h3>
+          <p><strong>Cihaz:</strong> ${data.device}</p>
+          <p><strong>Arıza Tipi:</strong> ${data.faultType}</p>
+          <p><strong>Teslim Tarihi:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+        </div>
+        
+        <h4>Sonraki Adımlar:</h4>
+        <ol>
+          <li>Arıza tespiti yapılacak</li>
+          <li>Size fiyat teklifi sunulacak</li>
+          <li>Onayınız sonrası onarım başlayacak</li>
+        </ol>
+        
+        <p style="text-align: center;">
+          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" class="btn">Durumu Takip Et →</a>
+        </p>
+      </div>
+      <div class="footer">
+        <p>VR Tamir Merkezi | Profesyonel VR Servis Hizmetleri</p>
+        <p>Bu e-posta otomatik olarak gönderilmiştir. Yanıtlamayınız.</p>
+      </div>
+    </body>
+    </html>
+  `
+});
+
+// Price Quote Email - sent when price quote is ready
+const getPriceQuoteEmail = (data) => ({
+  to: data.email,
+  cc: CC_EMAILS,
+  from: process.env.FROM_EMAIL,
+  subject: `VR Tamir Merkezi - Fiyat Teklifiniz Hazır (#${data.serviceId})`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b; }
+        .tracking-number { font-size: 24px; font-weight: bold; color: #f59e0b; text-align: center; padding: 15px; background: #fffbeb; border-radius: 8px; margin: 20px 0; }
+        .price-box { font-size: 32px; font-weight: bold; color: #16a34a; text-align: center; padding: 20px; background: #f0fdf4; border-radius: 8px; margin: 20px 0; border: 2px solid #22c55e; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+        .btn { display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>💰 Fiyat Teklifiniz Hazır</h1>
+      </div>
+      <div class="content">
+        <p>Sayın <strong>${data.fullName}</strong>,</p>
+        <p>Cihazınızın arıza tespiti tamamlanmış ve fiyat teklifiniz hazırlanmıştır.</p>
+        
+        <div class="tracking-number">
+          Takip No: ${data.serviceId}
+        </div>
+        
+        <div class="info-box">
+          <h3 style="margin-top: 0; color: #f59e0b;">Arıza Tespiti</h3>
+          <p><strong>Cihaz:</strong> ${data.device}</p>
+          <p><strong>Tespit Edilen Arıza:</strong> ${data.faultType}</p>
+        </div>
+        
+        <div class="price-box">
+          ₺${data.priceQuote ? data.priceQuote.toLocaleString('tr-TR') : '0'}
+        </div>
+        
+        ${data.notes ? `
+        <div class="info-box" style="border-left-color: #3b82f6;">
+          <h4 style="margin-top: 0; color: #3b82f6;">📝 Açıklama</h4>
+          <p>${data.notes}</p>
+        </div>
+        ` : ''}
+        
+        <p><strong>Onarım İşleminin Başlaması İçin:</strong></p>
+        <p>Lütfen bizimle iletişime geçerek teklifinizi onaylayın. Onayınız sonrası onarım işlemine başlanacaktır.</p>
+        
+        <p style="text-align: center;">
+          <a href="${process.env.SITE_URL || 'https://vrservis.com'}/takip" class="btn">Durumu Takip Et →</a>
+        </p>
+        
+        <p style="color: #64748b; font-size: 14px; margin-top: 20px;">
+          📞 İletişim: +90 850 228 7574<br>
+          📧 E-posta: vr@vrtamirmerkezi.com
+        </p>
+      </div>
+      <div class="footer">
+        <p>VR Tamir Merkezi | Profesyonel VR Servis Hizmetleri</p>
+        <p>Bu e-posta otomatik olarak gönderilmiştir. Yanıtlamayınız.</p>
+      </div>
+    </body>
+    </html>
+  `
+});
+
 const getRentalRequestCustomerEmail = (data) => ({
   to: data.email,
-  cc: process.env.CC_EMAIL,
+  cc: CC_EMAILS,
   from: process.env.FROM_EMAIL,
   subject: `VR Kiralama - Talebiniz Alındı (#${data.rentalId})`,
   html: `
@@ -271,4 +406,28 @@ export const sendRentalRequestEmails = async (data) => {
   }
 };
 
+// Status update emails
+export const sendDeviceReceivedEmail = async (data) => {
+  try {
+    await sgMail.send(getDeviceReceivedEmail(data));
+    console.log(`✉️ Device received email sent to ${data.email}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Device received email error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const sendPriceQuoteEmail = async (data) => {
+  try {
+    await sgMail.send(getPriceQuoteEmail(data));
+    console.log(`✉️ Price quote email sent to ${data.email}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Price quote email error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export default sgMail;
+

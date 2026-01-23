@@ -17,6 +17,9 @@ import TrackingPage from '@/pages/TrackingPage';
 import { Toaster } from '@/components/ui/toaster';
 import CheckoutPage from '@/pages/CheckoutPage';
 import ScrollToTop from '@/components/ScrollToTop';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import KVKKPage from '@/pages/KVKKPage';
+import TermsPage from '@/pages/TermsPage';
 
 
 function App() {
@@ -44,6 +47,9 @@ function App() {
                 <Route path="/servis" element={<ServisPage />} />
                 <Route path="/takip" element={<TrackingPage />} />
                 <Route path="/siparis" element={<CheckoutPage />} />
+                <Route path="/gizlilik" element={<PrivacyPolicyPage />} />
+                <Route path="/kvkk" element={<KVKKPage />} />
+                <Route path="/kullanim-kosullari" element={<TermsPage />} />
               </Routes>
             </MainLayout>
           } />

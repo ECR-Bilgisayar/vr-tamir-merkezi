@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Search, Package, Clock, CheckCircle, Phone, Wrench, Truck, MapPin, AlertCircle } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, Phone, Wrench, Truck, MapPin, AlertCircle, MessageSquare, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const STATUS_CONFIG = {
+// Service request statuses
+const SERVICE_STATUS_CONFIG = {
     pending: { label: 'Yeni Talep', color: 'bg-yellow-500', icon: Clock, description: 'Talebiniz alındı, inceleniyor.' },
     contacted: { label: 'İletişime Geçildi', color: 'bg-blue-500', icon: Phone, description: 'Sizinle iletişime geçildi.' },
     received: { label: 'Cihaz Teslim Alındı', color: 'bg-indigo-500', icon: Package, description: 'Cihazınız teslim alındı.' },
     diagnosed: { label: 'Arıza Tespiti Yapıldı', color: 'bg-purple-500', icon: Search, description: 'Arıza tespit edildi.' },
-    quoted: { label: 'Fiyat Teklifi Sunuldu', color: 'bg-orange-500', icon: Clock, description: 'Size fiyat teklifi sunuldu.' },
+    quoted: { label: 'Fiyat Teklifi Sunuldu', color: 'bg-orange-500', icon: MessageSquare, description: 'Size fiyat teklifi sunuldu.' },
     approved: { label: 'Onaylandı', color: 'bg-cyan-500', icon: CheckCircle, description: 'Onarım onaylandı.' },
     repairing: { label: 'Onarım Sürecinde', color: 'bg-pink-500', icon: Wrench, description: 'Cihazınız onarılıyor.' },
     repaired: { label: 'Onarım Tamamlandı', color: 'bg-emerald-500', icon: CheckCircle, description: 'Onarım tamamlandı!' },
@@ -18,13 +19,26 @@ const STATUS_CONFIG = {
     cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: AlertCircle, description: 'Talep iptal edildi.' }
 };
 
-const ALL_STATUSES = ['pending', 'contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing', 'repaired', 'shipped', 'delivered'];
+// Rental request statuses - simpler flow without repair stages
+const RENTAL_STATUS_CONFIG = {
+    pending: { label: 'Yeni Talep', color: 'bg-yellow-500', icon: Clock, description: 'Kiralama talebiniz alındı.' },
+    contacted: { label: 'İletişime Geçildi', color: 'bg-blue-500', icon: Phone, description: 'Sizinle iletişime geçildi.' },
+    quoted: { label: 'Teklif Gönderildi', color: 'bg-orange-500', icon: MessageSquare, description: 'Fiyat teklifi gönderildi.' },
+    approved: { label: 'Onaylandı', color: 'bg-cyan-500', icon: CheckCircle, description: 'Kiralama onaylandı.' },
+    active: { label: 'Kiralama Aktif', color: 'bg-emerald-500', icon: Package, description: 'Cihazlar kullanımınızda.' },
+    completed: { label: 'Tamamlandı', color: 'bg-green-600', icon: CheckCircle, description: 'Kiralama tamamlandı.' },
+    cancelled: { label: 'İptal Edildi', color: 'bg-red-500', icon: AlertCircle, description: 'Talep iptal edildi.' }
+};
+
+const SERVICE_STATUSES = ['pending', 'contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing', 'repaired', 'shipped', 'delivered'];
+const RENTAL_STATUSES = ['pending', 'contacted', 'quoted', 'approved', 'active', 'completed'];
 
 const TrackingPage = () => {
     const [trackingId, setTrackingId] = useState('');
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [requestType, setRequestType] = useState('service'); // 'service' or 'rental'
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -36,7 +50,14 @@ const TrackingPage = () => {
 
         try {
             const API_URL = import.meta.env.VITE_API_URL || '';
-            const response = await fetch(`${API_URL}/api/service-requests/track/${trackingId.trim()}`);
+
+            // Determine if it's a service or rental request based on prefix
+            const isRental = trackingId.trim().toUpperCase().startsWith('RNT');
+            const endpoint = isRental
+                ? `${API_URL}/api/rental-requests/track/${trackingId.trim()}`
+                : `${API_URL}/api/service-requests/track/${trackingId.trim()}`;
+
+            const response = await fetch(endpoint);
             const data = await response.json();
 
             if (!response.ok) {
@@ -44,6 +65,7 @@ const TrackingPage = () => {
             }
 
             setResult(data);
+            setRequestType(isRental ? 'rental' : 'service');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -51,9 +73,13 @@ const TrackingPage = () => {
         }
     };
 
+    const getStatusConfig = () => requestType === 'rental' ? RENTAL_STATUS_CONFIG : SERVICE_STATUS_CONFIG;
+    const getAllStatuses = () => requestType === 'rental' ? RENTAL_STATUSES : SERVICE_STATUSES;
+
     const getCurrentStatusIndex = () => {
         if (!result) return -1;
-        return ALL_STATUSES.indexOf(result.request.status);
+        const statuses = getAllStatuses();
+        return statuses.indexOf(result.request.status);
     };
 
     const formatDate = (date) => {
@@ -66,11 +92,14 @@ const TrackingPage = () => {
         });
     };
 
+    const statusConfig = getStatusConfig();
+    const allStatuses = getAllStatuses();
+
     return (
         <>
             <Helmet>
-                <title>Servis Takip - VR Tamir Merkezi</title>
-                <meta name="description" content="Servis talebinizin durumunu takip numaranızla sorgulayın." />
+                <title>Sipariş / Servis Takip - VR Tamir Merkezi</title>
+                <meta name="description" content="Servis veya kiralama talebinizin durumunu takip numaranızla sorgulayın." />
             </Helmet>
 
             <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 dark:from-[#0a0e27] dark:via-black dark:to-[#0a0e27] py-16 px-4">
@@ -85,10 +114,10 @@ const TrackingPage = () => {
                             <Package className="w-8 h-8 text-white" />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                            Servis Takip
+                            Sipariş / Servis Takip
                         </h1>
                         <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                            Servis takip numaranızı girerek talebinizin durumunu sorgulayabilirsiniz.
+                            Takip numaranızı girerek servis veya kiralama talebinizin durumunu sorgulayabilirsiniz.
                         </p>
                     </motion.div>
 
@@ -107,7 +136,7 @@ const TrackingPage = () => {
                                     type="text"
                                     value={trackingId}
                                     onChange={(e) => setTrackingId(e.target.value.toUpperCase())}
-                                    placeholder="SRV-2026-XXXXXX"
+                                    placeholder="SRV-2026-XXXXXX veya RNT-2026-XXXXXX"
                                     className="w-full pl-12 pr-4 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none text-lg font-mono"
                                 />
                             </div>
@@ -148,23 +177,38 @@ const TrackingPage = () => {
                                     <div>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">Takip No</p>
                                         <p className="text-xl font-mono font-bold text-purple-600 dark:text-purple-400">
-                                            {result.request.service_id}
+                                            {result.request.service_id || result.request.rental_id}
                                         </p>
                                     </div>
-                                    <div className={`px-4 py-2 rounded-full text-white font-medium ${STATUS_CONFIG[result.request.status]?.color || 'bg-gray-500'}`}>
-                                        {STATUS_CONFIG[result.request.status]?.label || result.request.status}
+                                    <div className={`px-4 py-2 rounded-full text-white font-medium ${statusConfig[result.request.status]?.color || 'bg-gray-500'}`}>
+                                        {statusConfig[result.request.status]?.label || result.request.status}
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p className="text-gray-500 dark:text-gray-400">Cihaz</p>
-                                        <p className="font-semibold text-gray-900 dark:text-white">{result.request.device}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500 dark:text-gray-400">Arıza Tipi</p>
-                                        <p className="font-semibold text-gray-900 dark:text-white">{result.request.fault_type}</p>
-                                    </div>
+                                    {requestType === 'service' ? (
+                                        <>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Cihaz</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">{result.request.device}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Arıza Tipi</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">{result.request.fault_type}</p>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Firma</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">{result.request.company || '-'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 dark:text-gray-400">Talep Türü</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">Kiralama</p>
+                                            </div>
+                                        </>
+                                    )}
                                     <div>
                                         <p className="text-gray-500 dark:text-gray-400">Oluşturma Tarihi</p>
                                         <p className="font-medium text-gray-900 dark:text-white">{formatDate(result.request.created_at)}</p>
@@ -174,6 +218,14 @@ const TrackingPage = () => {
                                         <p className="font-medium text-gray-900 dark:text-white">{formatDate(result.request.updated_at)}</p>
                                     </div>
                                 </div>
+
+                                {/* Price Quote if available */}
+                                {result.request.price_quote && (
+                                    <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-200 dark:border-orange-500/20">
+                                        <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">💰 Fiyat Teklifi</p>
+                                        <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">₺{result.request.price_quote.toLocaleString('tr-TR')}</p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Progress Timeline */}
@@ -184,12 +236,12 @@ const TrackingPage = () => {
                                     <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-white/10" />
                                     <div
                                         className="absolute left-4 top-0 w-0.5 bg-gradient-to-b from-purple-500 to-blue-500 transition-all duration-500"
-                                        style={{ height: `${Math.max(0, (getCurrentStatusIndex() / (ALL_STATUSES.length - 1)) * 100)}%` }}
+                                        style={{ height: `${Math.max(0, (getCurrentStatusIndex() / (allStatuses.length - 1)) * 100)}%` }}
                                     />
 
                                     <div className="space-y-6">
-                                        {ALL_STATUSES.map((status, index) => {
-                                            const config = STATUS_CONFIG[status];
+                                        {allStatuses.map((status, index) => {
+                                            const config = statusConfig[status];
                                             const isActive = index <= getCurrentStatusIndex();
                                             const isCurrent = status === result.request.status;
                                             const Icon = config.icon;
@@ -217,22 +269,32 @@ const TrackingPage = () => {
                                 </div>
                             </div>
 
-                            {/* History */}
+                            {/* History with Notes */}
                             {result.history && result.history.length > 0 && (
                                 <div className="p-6 bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Durum Geçmişi</h3>
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         {result.history.map((item, index) => (
-                                            <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-white/5 last:border-0">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-2 h-2 rounded-full ${STATUS_CONFIG[item.new_status]?.color || 'bg-gray-400'}`} />
-                                                    <span className="font-medium text-gray-900 dark:text-white">
-                                                        {STATUS_CONFIG[item.new_status]?.label || item.new_status}
+                                            <div key={index} className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-3 h-3 rounded-full ${statusConfig[item.new_status]?.color || 'bg-gray-400'}`} />
+                                                        <span className="font-medium text-gray-900 dark:text-white">
+                                                            {statusConfig[item.new_status]?.label || item.new_status}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                        {formatDate(item.created_at)}
                                                     </span>
                                                 </div>
-                                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {formatDate(item.created_at)}
-                                                </span>
+                                                {item.notes && (
+                                                    <div className="mt-2 pl-6 flex items-start gap-2">
+                                                        <FileText className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                                                            {item.notes}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -247,10 +309,14 @@ const TrackingPage = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="text-center text-gray-500 dark:text-gray-400 text-sm"
+                            className="text-center text-gray-500 dark:text-gray-400 text-sm space-y-2"
                         >
-                            <p>Takip numaranızı servis talebinizi oluşturduktan sonra aldığınız e-postada bulabilirsiniz.</p>
-                            <p className="mt-2">Örnek format: <span className="font-mono text-purple-600 dark:text-purple-400">SRV-2026-123456</span></p>
+                            <p>Takip numaranızı talebinizi oluşturduktan sonra aldığınız e-postada bulabilirsiniz.</p>
+                            <p>
+                                Servis: <span className="font-mono text-purple-600 dark:text-purple-400">SRV-2026-123456</span>
+                                <span className="mx-2">|</span>
+                                Kiralama: <span className="font-mono text-blue-600 dark:text-blue-400">RNT-2026-123456</span>
+                            </p>
                         </motion.div>
                     )}
                 </div>

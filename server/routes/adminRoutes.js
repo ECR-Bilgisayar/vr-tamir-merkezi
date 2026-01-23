@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import supabase from '../config/supabase.js';
 import { authenticateToken, generateToken } from '../middleware/auth.js';
+import { sendDeviceReceivedEmail, sendPriceQuoteEmail } from '../services/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -77,10 +78,10 @@ router.get('/stats', authenticateToken, async (req, res) => {
             .select('status');
 
         const servicePending = serviceRequests?.filter(r => r.status === 'pending').length || 0;
-        const serviceInProgress = serviceRequests?.filter(r => 
+        const serviceInProgress = serviceRequests?.filter(r =>
             ['contacted', 'received', 'diagnosed', 'quoted', 'approved', 'repairing'].includes(r.status)
         ).length || 0;
-        const serviceCompleted = serviceRequests?.filter(r => 
+        const serviceCompleted = serviceRequests?.filter(r =>
             ['repaired', 'shipped', 'delivered'].includes(r.status)
         ).length || 0;
 
@@ -90,7 +91,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
             .select('status');
 
         const rentalPending = rentalRequests?.filter(r => r.status === 'pending').length || 0;
-        const rentalInProgress = rentalRequests?.filter(r => 
+        const rentalInProgress = rentalRequests?.filter(r =>
             ['contacted', 'quoted', 'approved', 'active'].includes(r.status)
         ).length || 0;
         const rentalCompleted = rentalRequests?.filter(r => r.status === 'completed').length || 0;
@@ -219,10 +220,10 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
         const { id } = req.params;
         const { status, notes, priceQuote } = req.body;
 
-        // Get current status
+        // Get current request with customer info for email
         const { data: currentRequest } = await supabase
             .from('service_requests')
-            .select('status')
+            .select('*')
             .eq('id', id)
             .single();
 
@@ -260,6 +261,31 @@ router.patch('/service-requests/:id/status', authenticateToken, async (req, res)
                 notes: notes || null,
                 changed_by: req.user.username
             }]);
+
+        // Send notification emails for specific status changes
+        const emailData = {
+            email: currentRequest.email,
+            fullName: currentRequest.full_name,
+            serviceId: currentRequest.service_id,
+            device: currentRequest.device,
+            faultType: currentRequest.fault_type,
+            priceQuote: priceQuote || currentRequest.price_quote,
+            notes: notes
+        };
+
+        // Send device received email
+        if (status === 'received' && oldStatus !== 'received') {
+            sendDeviceReceivedEmail(emailData).catch(err =>
+                console.error('Device received email failed:', err)
+            );
+        }
+
+        // Send price quote email
+        if (status === 'quoted' && oldStatus !== 'quoted') {
+            sendPriceQuoteEmail(emailData).catch(err =>
+                console.error('Price quote email failed:', err)
+            );
+        }
 
         res.json({
             success: true,
