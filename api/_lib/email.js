@@ -3,14 +3,14 @@ import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const sendServiceRequestEmails = async (data) => {
-    try {
-        // Customer email
-        await sgMail.send({
-            to: data.email,
-            cc: process.env.CC_EMAIL,
-            from: process.env.FROM_EMAIL,
-            subject: `VR Tamir Merkezi - Servis Talebiniz Alındı (#${data.serviceId})`,
-            html: `
+  try {
+    // Customer email
+    await sgMail.send({
+      to: data.email,
+      cc: process.env.BCC_EMAIL,
+      from: process.env.FROM_EMAIL,
+      subject: `VR Tamir Merkezi - Servis Talebiniz Alındı (#${data.serviceId})`,
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
             <h1>🛠️ Servis Talebiniz Alındı</h1>
@@ -34,14 +34,14 @@ export const sendServiceRequestEmails = async (data) => {
           </div>
         </div>
       `
-        });
+    });
 
-        // Admin email
-        await sgMail.send({
-            to: process.env.ADMIN_EMAIL,
-            from: process.env.FROM_EMAIL,
-            subject: `🔔 Yeni Servis Talebi - ${data.fullName} (#${data.serviceId})`,
-            html: `
+    // Admin email
+    await sgMail.send({
+      to: process.env.ADMIN_EMAIL,
+      from: process.env.FROM_EMAIL,
+      subject: `🔔 Yeni Servis Talebi - ${data.fullName} (#${data.serviceId})`,
+      html: `
         <div style="font-family: Arial, sans-serif;">
           <h2>Yeni Servis Talebi</h2>
           <p><strong>Takip No:</strong> ${data.serviceId}</p>
@@ -53,23 +53,23 @@ export const sendServiceRequestEmails = async (data) => {
           <p><strong>Açıklama:</strong> ${data.faultDescription || '-'}</p>
         </div>
       `
-        });
+    });
 
-        return { success: true };
-    } catch (error) {
-        console.error('Email error:', error);
-        return { success: false, error: error.message };
-    }
+    return { success: true };
+  } catch (error) {
+    console.error('Email error:', error);
+    return { success: false, error: error.message };
+  }
 };
 
 export const sendRentalRequestEmails = async (data) => {
-    try {
-        await sgMail.send({
-            to: data.email,
-            cc: process.env.CC_EMAIL,
-            from: process.env.FROM_EMAIL,
-            subject: `VR Kiralama - Talebiniz Alındı (#${data.rentalId})`,
-            html: `
+  try {
+    await sgMail.send({
+      to: data.email,
+      cc: process.env.BCC_EMAIL,
+      from: process.env.FROM_EMAIL,
+      subject: `VR Kiralama - Talebiniz Alındı (#${data.rentalId})`,
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; padding: 30px; text-align: center;">
             <h1>🎮 Kiralama Talebiniz Alındı</h1>
@@ -81,13 +81,13 @@ export const sendRentalRequestEmails = async (data) => {
           </div>
         </div>
       `
-        });
+    });
 
-        await sgMail.send({
-            to: process.env.ADMIN_EMAIL,
-            from: process.env.FROM_EMAIL,
-            subject: `🎮 Yeni Kiralama Talebi - ${data.company} (#${data.rentalId})`,
-            html: `
+    await sgMail.send({
+      to: process.env.ADMIN_EMAIL,
+      from: process.env.FROM_EMAIL,
+      subject: `🎮 Yeni Kiralama Talebi - ${data.company} (#${data.rentalId})`,
+      html: `
         <p><strong>Talep No:</strong> ${data.rentalId}</p>
         <p><strong>Müşteri:</strong> ${data.fullName} - ${data.company}</p>
         <p><strong>Email:</strong> ${data.email}</p>
@@ -95,11 +95,11 @@ export const sendRentalRequestEmails = async (data) => {
         <p><strong>Ürün:</strong> ${data.productName || '-'}</p>
         <p><strong>Adet:</strong> ${data.quantity} | <strong>Süre:</strong> ${data.duration} Gün</p>
       `
-        });
+    });
 
-        return { success: true };
-    } catch (error) {
-        console.error('Email error:', error);
-        return { success: false, error: error.message };
-    }
+    return { success: true };
+  } catch (error) {
+    console.error('Email error:', error);
+    return { success: false, error: error.message };
+  }
 };
