@@ -24,12 +24,18 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <img src="/sadece-logo.png" alt="VR Kiralama Logo" className="w-10 h-10 rounded-lg" />
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                VR Kiralama
-              </span>
-            </div>
+            <Link to="/" className="flex items-center space-x-3 mb-4 group">
+              <img
+                src="/sadece-logo.png"
+                alt="VR Tamir Merkezi Logo"
+                className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform duration-300"
+              />
+              <img
+                src="/sadece-yazi.png"
+                alt="VR Tamir Merkezi"
+                className="h-7 object-contain group-hover:opacity-90 transition-opacity duration-300"
+              />
+            </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
               Türkiye'nin lider VR Tamir ve kiralama platformu. Kurumsal etkinlikler, fuarlar ve özel organizasyonlar için profesyonel VR çözümleri.
             </p>
