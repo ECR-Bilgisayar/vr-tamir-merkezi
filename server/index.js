@@ -29,7 +29,8 @@ app.use(cors({
         'http://localhost:5174',
         'https://vr-tamir-merkezi-five.vercel.app',
         'https://vrtamirmerkezi.com',
-        'https://www.vrtamirmerkezi.com'
+        'https://www.vrtamirmerkezi.com',
+        'http://vrtamirmerkezi.com',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
