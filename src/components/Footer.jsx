@@ -24,16 +24,18 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <Link to="/" className="flex items-center space-x-3 mb-4 group">
+            <Link to="/" className="flex items-center mb-4 group">
+              {/* Light mode logo */}
               <img
-                src="/sadece-logo.png"
-                alt="VR Tamir Merkezi Logo"
-                className="w-10 h-10 rounded-lg group-hover:scale-105 transition-transform duration-300"
-              />
-              <img
-                src="/sadece-yazi.png"
+                src="/logo.png"
                 alt="VR Tamir Merkezi"
-                className="h-7 object-contain group-hover:opacity-90 transition-opacity duration-300"
+                className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 dark:hidden"
+              />
+              {/* Dark mode logo */}
+              <img
+                src="/beyaz-logo.png"
+                alt="VR Tamir Merkezi"
+                className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 hidden dark:block"
               />
             </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
@@ -113,7 +115,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/satin-al" className="text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 text-sm font-medium transition-colors flex items-center gap-1">
-                  🛒 VR Hijyen Gözlük Bandı Satın Al
+                  VR Hijyen Gözlük Bandı Satın Al
                 </Link>
               </li>
               <li>

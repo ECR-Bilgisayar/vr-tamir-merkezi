@@ -45,10 +45,17 @@ const Navbar = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
+              {/* Light mode logo */}
               <img
                 src="/logo.png"
                 alt="VR Tamir Merkezi"
-                className="h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-lg"
+                className="h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-lg dark:hidden"
+              />
+              {/* Dark mode logo */}
+              <img
+                src="/beyaz-logo.png"
+                alt="VR Tamir Merkezi"
+                className="h-12 md:h-14 lg:h-16 w-auto object-contain drop-shadow-lg hidden dark:block"
               />
             </motion.div>
 
@@ -58,10 +65,17 @@ const Navbar = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
             >
+              {/* Light mode mobile logo */}
               <img
                 src="/sadece-logo.png"
                 alt="VR Tamir Merkezi"
-                className="h-10 w-auto object-contain drop-shadow-lg"
+                className="h-10 w-auto object-contain drop-shadow-lg dark:hidden"
+              />
+              {/* Dark mode mobile logo */}
+              <img
+                src="/beyaz-logo.png"
+                alt="VR Tamir Merkezi"
+                className="h-10 w-auto object-contain drop-shadow-lg hidden dark:block"
               />
             </motion.div>
           </Link>

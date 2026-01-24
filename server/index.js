@@ -40,8 +40,9 @@ app.use(cors({
 // ✅ Preflight requests için
 app.options('*', cors());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Increase payload limit for receipt uploads (base64 images can be large)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging in development
 if (process.env.NODE_ENV !== 'production') {
