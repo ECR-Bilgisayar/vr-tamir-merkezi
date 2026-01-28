@@ -94,8 +94,6 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
         duration: '',
         event_date: '',
         message: '',
-        product_price: '',
-        shipping_price: 0,
         invoice_type: 'individual',
         company_name: '',
         tax_office: '',
@@ -104,6 +102,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
     });
 
     const [saving, setSaving] = useState(false);
+    const [formType, setFormType] = useState('order'); // 'order' veya 'delivery'
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -146,7 +145,11 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
                 await onSave(dataToSave, entryType);
             }
             if (shouldPrint) {
-                printForm(dataToSave, trackingId);
+                if (formType === 'order') {
+                    printOrderForm(dataToSave, trackingId);
+                } else {
+                    printDeliveryForm(dataToSave, trackingId);
+                }
             }
             toast({ title: 'Başarılı', description: `Kayıt oluşturuldu: ${trackingId}` });
             onClose();
@@ -158,7 +161,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
         }
     };
 
-    const handlePrintOnly = () => {
+    const handlePrintOnly = (type) => {
         if (!formData.full_name || !formData.phone) {
             toast({ title: 'Hata', description: 'Ad Soyad ve Telefon zorunludur', variant: 'destructive' });
             return;
@@ -169,126 +172,23 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
             device: formData.device === 'Diğer' ? formData.device_other : formData.device,
             fault_type: formData.fault_type === 'Diğer' ? formData.fault_other : formData.fault_type,
         };
-        printForm(dataToSave, trackingId);
+        if (type === 'order') {
+            printOrderForm(dataToSave, trackingId);
+        } else {
+            printDeliveryForm(dataToSave, trackingId);
+        }
     };
 
-    const printForm = (data, trackingId) => {
+    // SİPARİŞ FORMU - Müşteriye verilecek
+    const printOrderForm = (data, trackingId) => {
         const printWindow = window.open('', '_blank');
         const today = new Date().toLocaleDateString('tr-TR');
         const siteUrl = window.location.origin;
 
         const getFormTitle = () => {
-            if (entryType === 'service') return 'CİHAZ TESLİM FORMU';
-            if (entryType === 'rental') return 'KİRALAMA FORMU';
+            if (entryType === 'service') return 'SERVİS TALEBİ';
+            if (entryType === 'rental') return 'KİRALAMA TALEBİ';
             return 'SİPARİŞ FORMU';
-        };
-
-        const getFormContent = () => {
-            if (entryType === 'service') {
-                return `
-                    <div class="section">
-                        <div class="section-title">🎮 Cihaz Bilgileri</div>
-                        <div class="grid">
-                            <div class="field">
-                                <div class="field-label">Cihaz Modeli</div>
-                                <div class="field-value">${data.device || '-'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Seri Numarası</div>
-                                <div class="field-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Arıza Tipi</div>
-                                <div class="field-value">${data.fault_type || '-'}</div>
-                            </div>
-                            <div class="field full-width">
-                                <div class="field-label">Arıza Açıklaması</div>
-                                <div class="field-value">${data.fault_description || '-'}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="section">
-                        <div class="section-title">📦 Teslim Edilen Aksesuarlar</div>
-                        <div class="accessories-list">
-                            ${data.accessories?.length > 0
-                        ? ACCESSORY_OPTIONS.filter(a => data.accessories.includes(a.id)).map(a => `<span class="accessory-item">✓ ${a.label}</span>`).join('')
-                        : '<span class="field-value empty">Aksesuar teslim edilmedi</span>'
-                    }
-                        </div>
-                    </div>
-                `;
-            } else if (entryType === 'rental') {
-                return `
-                    <div class="section">
-                        <div class="section-title">📦 Kiralama Bilgileri</div>
-                        <div class="grid">
-                            <div class="field">
-                                <div class="field-label">Firma</div>
-                                <div class="field-value">${data.company || '-'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Ürün</div>
-                                <div class="field-value">${data.product_name || '-'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Adet</div>
-                                <div class="field-value">${data.quantity || 1}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Süre</div>
-                                <div class="field-value">${data.duration || '-'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Etkinlik Tarihi</div>
-                                <div class="field-value">${data.event_date || '-'}</div>
-                            </div>
-                            <div class="field full-width">
-                                <div class="field-label">Notlar</div>
-                                <div class="field-value">${data.message || '-'}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="section">
-                        <div class="section-title">🎮 Ürün / Cihaz Bilgileri</div>
-                        <div class="grid">
-                            <div class="field">
-                                <div class="field-label">Ürün Adı</div>
-                                <div class="field-value">${data.device || data.product_name || '-'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Seri Numarası</div>
-                                <div class="field-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Adet</div>
-                                <div class="field-value">${data.quantity || 1}</div>
-                            </div>
-                            <div class="field">
-                                <div class="field-label">Fatura Tipi</div>
-                                <div class="field-value">${data.invoice_type === 'corporate' ? 'Kurumsal' : 'Bireysel'}</div>
-                            </div>
-                            ${data.invoice_type === 'corporate' ? `
-                                <div class="field">
-                                    <div class="field-label">Firma Adı</div>
-                                    <div class="field-value">${data.company_name || '-'}</div>
-                                </div>
-                                <div class="field">
-                                    <div class="field-label">Vergi Dairesi / No</div>
-                                    <div class="field-value">${data.tax_office || '-'} / ${data.tax_no || '-'}</div>
-                                </div>
-                            ` : `
-                                <div class="field">
-                                    <div class="field-label">T.C. Kimlik No</div>
-                                    <div class="field-value">${data.tc_no || '-'}</div>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                `;
-            }
         };
 
         const htmlContent = `
@@ -296,88 +196,385 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>${getFormTitle()} - ${trackingId}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @page { size: A4; margin: 15mm; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 15mm; font-size: 10pt; color: #1a1a1a; line-height: 1.4; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #7c3aed; padding-bottom: 12px; margin-bottom: 18px; }
-        .logo-section { display: flex; flex-direction: column; }
-        .logo-section img.logo { height: 55px; width: auto; margin-bottom: 6px; }
-        .logo-section p { font-size: 8pt; color: #666; }
-        .form-title { text-align: right; }
-        .form-title h2 { font-size: 13pt; color: #7c3aed; margin-bottom: 6px; }
-        .form-title .tracking { font-family: monospace; font-size: 11pt; color: #1a1a1a; background: #f3f0ff; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-        .form-title .date { font-size: 9pt; color: #666; margin-top: 5px; }
-        .section { margin-bottom: 16px; }
-        .section-title { font-size: 10pt; font-weight: 600; color: #7c3aed; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .field { margin-bottom: 4px; }
-        .field-label { font-size: 8pt; color: #666; margin-bottom: 2px; }
-        .field-value { font-size: 10pt; color: #1a1a1a; padding: 7px 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; min-height: 26px; }
-        .field-value.empty { color: #999; font-style: italic; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px 50px; font-size: 11pt; color: #111; line-height: 1.5; background: #fff; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; border-bottom: 2px solid #111; margin-bottom: 30px; }
+        .logo-section img { height: 50px; }
+        .logo-section p { font-size: 9pt; color: #444; margin-top: 8px; }
+        .document-info { text-align: right; }
+        .document-info .doc-type { font-size: 18pt; font-weight: 700; color: #111; letter-spacing: 1px; margin-bottom: 8px; }
+        .document-info .doc-number { font-family: 'Courier New', monospace; font-size: 14pt; font-weight: 600; color: #333; background: #f5f5f5; padding: 8px 15px; border: 1px solid #ddd; margin-bottom: 5px; display: inline-block; }
+        .document-info .doc-date { font-size: 10pt; color: #666; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 11pt; font-weight: 600; color: #111; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 8px; border-bottom: 1px solid #ddd; margin-bottom: 15px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .info-item { }
+        .info-label { font-size: 8pt; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px; }
+        .info-value { font-size: 11pt; color: #111; padding: 10px 12px; background: #fafafa; border: 1px solid #e5e5e5; min-height: 38px; }
+        .info-value.empty { color: #999; font-style: italic; }
         .full-width { grid-column: 1 / -1; }
-        .accessories-list { display: flex; flex-wrap: wrap; gap: 8px; }
-        .accessory-item { padding: 4px 12px; background: #f3f0ff; border: 1px solid #7c3aed; border-radius: 4px; font-size: 9pt; color: #7c3aed; }
-        .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; }
-        .signature-box { text-align: center; }
-        .signature-box p { font-size: 8pt; color: #666; margin-bottom: 40px; }
-        .signature-line { border-top: 1px solid #1a1a1a; padding-top: 5px; font-size: 9pt; }
-        .footer { margin-top: 20px; text-align: center; font-size: 8pt; color: #999; border-top: 1px solid #e5e7eb; padding-top: 10px; }
-        @media print { body { padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+        .accessories-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .accessory-tag { padding: 6px 14px; background: #f0f0f0; border: 1px solid #ddd; font-size: 10pt; color: #333; }
+        .tracking-section { margin-top: 35px; padding: 25px; background: #f8f8f8; border: 1px solid #ddd; text-align: center; }
+        .tracking-section h3 { font-size: 11pt; font-weight: 600; color: #111; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tracking-section .track-id { font-family: 'Courier New', monospace; font-size: 20pt; font-weight: 700; color: #111; letter-spacing: 2px; margin-bottom: 15px; }
+        .tracking-section .track-url { font-size: 10pt; color: #444; }
+        .tracking-section .track-url a { color: #111; font-weight: 600; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 9pt; color: #666; }
+        @media print { body { padding: 30px 40px; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo-section">
-            <img src="${siteUrl}/logo.png" alt="VR Tamir Merkezi" class="logo" />
+            <img src="${siteUrl}/logo.png" alt="VR Tamir Merkezi" />
             <p>vrtamirmerkezi.com | vr@vrtamirmerkezi.com</p>
         </div>
-        <div class="form-title">
-            <h2>${getFormTitle()}</h2>
-            <div class="tracking">${trackingId}</div>
-            <div class="date">${today}</div>
+        <div class="document-info">
+            <div class="doc-type">${getFormTitle()}</div>
+            <div class="doc-number">${trackingId}</div>
+            <div class="doc-date">${today}</div>
         </div>
     </div>
+
     <div class="section">
-        <div class="section-title">👤 Müşteri Bilgileri</div>
-        <div class="grid">
-            <div class="field">
-                <div class="field-label">Ad Soyad</div>
-                <div class="field-value">${data.full_name || '-'}</div>
+        <div class="section-title">Musteri Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Ad Soyad</div>
+                <div class="info-value">${data.full_name || '-'}</div>
             </div>
-            <div class="field">
-                <div class="field-label">Telefon</div>
-                <div class="field-value">${data.phone || '-'}</div>
+            <div class="info-item">
+                <div class="info-label">Telefon</div>
+                <div class="info-value">${data.phone || '-'}</div>
             </div>
-            <div class="field">
-                <div class="field-label">E-posta</div>
-                <div class="field-value">${data.email || '-'}</div>
+            <div class="info-item">
+                <div class="info-label">E-posta</div>
+                <div class="info-value">${data.email || '-'}</div>
             </div>
-            <div class="field">
-                <div class="field-label">Teslimat</div>
-                <div class="field-value">${data.delivery_method === 'kargo' ? 'Kargo' : 'Elden Teslim'}</div>
+            <div class="info-item">
+                <div class="info-label">Teslimat Yontemi</div>
+                <div class="info-value">${data.delivery_method === 'kargo' ? 'Kargo' : 'Elden Teslim'}</div>
             </div>
             ${data.address ? `
-            <div class="field full-width">
-                <div class="field-label">Adres</div>
-                <div class="field-value">${data.address}</div>
+            <div class="info-item full-width">
+                <div class="info-label">Adres</div>
+                <div class="info-value">${data.address}</div>
             </div>
             ` : ''}
         </div>
     </div>
-    ${getFormContent()}
-    <div class="signatures">
-        <div class="signature-box">
-            <p>Bilgilerin doğruluğunu ve şartları kabul ediyorum.</p>
-            <div class="signature-line"><strong>Müşteri:</strong> ${data.full_name}</div>
-        </div>
-        <div class="signature-box">
-            <p>İşlem tarafımca gerçekleştirilmiştir.</p>
-            <div class="signature-line"><strong>Yetkili:</strong> VR Tamir Merkezi</div>
+
+    ${entryType === 'service' ? `
+    <div class="section">
+        <div class="section-title">Cihaz Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Cihaz Modeli</div>
+                <div class="info-value">${data.device || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Seri Numarasi</div>
+                <div class="info-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Ariza Tipi</div>
+                <div class="info-value">${data.fault_type || '-'}</div>
+            </div>
+            <div class="info-item full-width">
+                <div class="info-label">Ariza Aciklamasi</div>
+                <div class="info-value">${data.fault_description || '-'}</div>
+            </div>
         </div>
     </div>
-    <div class="footer">Bu form 2 nüsha düzenlenmiştir. | VR Tamir Merkezi | vrtamirmerkezi.com | ${today}</div>
+    ` : ''}
+
+    ${entryType === 'rental' ? `
+    <div class="section">
+        <div class="section-title">Kiralama Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Firma</div>
+                <div class="info-value">${data.company || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Urun</div>
+                <div class="info-value">${data.product_name || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Adet</div>
+                <div class="info-value">${data.quantity || 1}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Sure</div>
+                <div class="info-value">${data.duration || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Etkinlik Tarihi</div>
+                <div class="info-value">${data.event_date || '-'}</div>
+            </div>
+            <div class="info-item full-width">
+                <div class="info-label">Notlar</div>
+                <div class="info-value">${data.message || '-'}</div>
+            </div>
+        </div>
+    </div>
+    ` : ''}
+
+    ${entryType === 'purchase' ? `
+    <div class="section">
+        <div class="section-title">Urun Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Urun Adi</div>
+                <div class="info-value">${data.device || data.product_name || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Seri Numarasi</div>
+                <div class="info-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Adet</div>
+                <div class="info-value">${data.quantity || 1}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fatura Tipi</div>
+                <div class="info-value">${data.invoice_type === 'corporate' ? 'Kurumsal' : 'Bireysel'}</div>
+            </div>
+        </div>
+    </div>
+    ` : ''}
+
+    <div class="tracking-section">
+        <h3>Siparisinizi Takip Edin</h3>
+        <div class="track-id">${trackingId}</div>
+        <div class="track-url">
+            Siparis durumunuzu asagidaki adresten takip edebilirsiniz:<br/>
+            <a href="https://vrtamirmerkezi.com/takip">https://vrtamirmerkezi.com/takip</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>VR Tamir Merkezi</span>
+        <span>${today}</span>
+    </div>
+</body>
+</html>
+        `;
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        printWindow.onload = () => { printWindow.print(); };
+    };
+
+    // TESLİM FORMU - İmza için
+    const printDeliveryForm = (data, trackingId) => {
+        const printWindow = window.open('', '_blank');
+        const today = new Date().toLocaleDateString('tr-TR');
+        const siteUrl = window.location.origin;
+
+        const getFormTitle = () => {
+            if (entryType === 'service') return 'CİHAZ TESLİM FORMU';
+            if (entryType === 'rental') return 'KİRALAMA TESLİM FORMU';
+            return 'ÜRÜN TESLİM FORMU';
+        };
+
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px 50px; font-size: 11pt; color: #111; line-height: 1.5; background: #fff; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; border-bottom: 2px solid #111; margin-bottom: 30px; }
+        .logo-section img { height: 50px; }
+        .logo-section p { font-size: 9pt; color: #444; margin-top: 8px; }
+        .document-info { text-align: right; }
+        .document-info .doc-type { font-size: 18pt; font-weight: 700; color: #111; letter-spacing: 1px; margin-bottom: 8px; }
+        .document-info .doc-number { font-family: 'Courier New', monospace; font-size: 14pt; font-weight: 600; color: #333; background: #f5f5f5; padding: 8px 15px; border: 1px solid #ddd; margin-bottom: 5px; display: inline-block; }
+        .document-info .doc-date { font-size: 10pt; color: #666; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 11pt; font-weight: 600; color: #111; text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 8px; border-bottom: 1px solid #ddd; margin-bottom: 15px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .info-item { }
+        .info-label { font-size: 8pt; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px; }
+        .info-value { font-size: 11pt; color: #111; padding: 10px 12px; background: #fafafa; border: 1px solid #e5e5e5; min-height: 38px; }
+        .info-value.empty { color: #999; font-style: italic; }
+        .full-width { grid-column: 1 / -1; }
+        .accessories-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .accessory-tag { padding: 6px 14px; background: #f0f0f0; border: 1px solid #ddd; font-size: 10pt; color: #333; }
+        .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 50px; padding-top: 30px; border-top: 1px solid #ddd; }
+        .signature-box { text-align: center; }
+        .signature-box .sig-title { font-size: 10pt; font-weight: 600; color: #111; text-transform: uppercase; margin-bottom: 60px; }
+        .signature-box .sig-line { border-top: 1px solid #111; padding-top: 10px; font-size: 10pt; color: #333; }
+        .terms { margin-top: 30px; padding: 20px; background: #fafafa; border: 1px solid #e5e5e5; font-size: 9pt; color: #555; line-height: 1.6; }
+        .terms-title { font-size: 10pt; font-weight: 600; color: #111; margin-bottom: 10px; text-transform: uppercase; }
+        .terms ul { padding-left: 20px; margin: 0; }
+        .terms li { margin-bottom: 5px; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 9pt; color: #666; }
+        @media print { body { padding: 30px 40px; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="${siteUrl}/logo.png" alt="VR Tamir Merkezi" />
+            <p>vrtamirmerkezi.com | vr@vrtamirmerkezi.com</p>
+        </div>
+        <div class="document-info">
+            <div class="doc-type">${getFormTitle()}</div>
+            <div class="doc-number">${trackingId}</div>
+            <div class="doc-date">${today}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Musteri Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Ad Soyad</div>
+                <div class="info-value">${data.full_name || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Telefon</div>
+                <div class="info-value">${data.phone || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">E-posta</div>
+                <div class="info-value">${data.email || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Teslimat Yontemi</div>
+                <div class="info-value">${data.delivery_method === 'kargo' ? 'Kargo' : 'Elden Teslim'}</div>
+            </div>
+            ${data.address ? `
+            <div class="info-item full-width">
+                <div class="info-label">Adres</div>
+                <div class="info-value">${data.address}</div>
+            </div>
+            ` : ''}
+        </div>
+    </div>
+
+    ${entryType === 'service' ? `
+    <div class="section">
+        <div class="section-title">Cihaz Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Cihaz Modeli</div>
+                <div class="info-value">${data.device || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Seri Numarasi</div>
+                <div class="info-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Ariza Tipi</div>
+                <div class="info-value">${data.fault_type || '-'}</div>
+            </div>
+            <div class="info-item full-width">
+                <div class="info-label">Ariza Aciklamasi</div>
+                <div class="info-value">${data.fault_description || '-'}</div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">Teslim Edilen Aksesuarlar</div>
+        <div class="accessories-grid">
+            ${data.accessories?.length > 0
+                    ? ACCESSORY_OPTIONS.filter(a => data.accessories.includes(a.id)).map(a => `<span class="accessory-tag">${a.label}</span>`).join('')
+                    : '<span class="info-value empty" style="width:100%">Aksesuar teslim edilmedi</span>'
+                }
+        </div>
+    </div>
+    ` : ''}
+
+    ${entryType === 'rental' ? `
+    <div class="section">
+        <div class="section-title">Kiralama Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Firma</div>
+                <div class="info-value">${data.company || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Urun</div>
+                <div class="info-value">${data.product_name || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Adet</div>
+                <div class="info-value">${data.quantity || 1}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Sure</div>
+                <div class="info-value">${data.duration || '-'}</div>
+            </div>
+        </div>
+    </div>
+    ` : ''}
+
+    ${entryType === 'purchase' ? `
+    <div class="section">
+        <div class="section-title">Urun Bilgileri</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Urun Adi</div>
+                <div class="info-value">${data.device || data.product_name || '-'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Seri Numarasi</div>
+                <div class="info-value ${!data.serial_number ? 'empty' : ''}">${data.serial_number || 'Belirtilmedi'}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Adet</div>
+                <div class="info-value">${data.quantity || 1}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fatura Tipi</div>
+                <div class="info-value">${data.invoice_type === 'corporate' ? 'Kurumsal' : 'Bireysel'}</div>
+            </div>
+        </div>
+    </div>
+    ` : ''}
+
+    <div class="terms">
+        <div class="terms-title">Teslim Sartlari</div>
+        <ul>
+            ${entryType === 'service' ? `
+            <li>Teslim edilen cihaz ve aksesuarlar yukaridaki bilgiler dogrultusunda teslim alinmistir.</li>
+            <li>Onarim sureci ariza tespiti sonrasi bildirilecektir.</li>
+            <li>Fiyat teklifi onayiniz alindiktan sonra isleme baslanacaktir.</li>
+            <li>Cihazlar 30 gun icinde teslim alinmalidir.</li>
+            ` : entryType === 'rental' ? `
+            <li>Kiralanan urunler eksiksiz ve calisir durumda teslim edilmistir.</li>
+            <li>Urunlerin hasarsiz sekilde iade edilmesi gerekmektedir.</li>
+            <li>Hasar durumunda onarim/degisim bedeli musteriye yansitilavaktir.</li>
+            ` : `
+            <li>Urun eksiksiz ve calisir durumda teslim edilmistir.</li>
+            <li>Teslim sirasinda urun kontrolu yapilmistir.</li>
+            <li>Iade islemleri 14 gun icinde yapilabilir.</li>
+            `}
+        </ul>
+    </div>
+
+    <div class="signatures">
+        <div class="signature-box">
+            <div class="sig-title">Teslim Eden</div>
+            <div class="sig-line">VR Tamir Merkezi</div>
+        </div>
+        <div class="signature-box">
+            <div class="sig-title">Teslim Alan</div>
+            <div class="sig-line">${data.full_name}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>Bu form 2 nusha duzenlenmistir.</span>
+        <span>${today}</span>
+    </div>
 </body>
 </html>
         `;
@@ -391,9 +588,8 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
             full_name: '', email: '', phone: '', address: '', device: '', device_other: '',
             serial_number: '', fault_type: '', fault_other: '', fault_description: '',
             accessories: [], delivery_method: 'elden', company: '', product_name: '',
-            quantity: 1, duration: '', event_date: '', message: '', product_price: '',
-            shipping_price: 0, invoice_type: 'individual', company_name: '', tax_office: '',
-            tax_no: '', tc_no: ''
+            quantity: 1, duration: '', event_date: '', message: '',
+            invoice_type: 'individual', company_name: '', tax_office: '', tax_no: '', tc_no: ''
         });
     };
 
@@ -610,22 +806,30 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
                             </div>
                         )}
                     </div>
-                    <div className="p-6 border-t border-white/10 flex flex-wrap gap-3">
-                        <Button variant="ghost" onClick={handlePrintOnly} className="flex-1 bg-white/5 hover:bg-white/10 text-white">
-                            <Printer className="w-4 h-4 mr-2" />Sadece Yazdır
-                        </Button>
-                        <Button variant="ghost" onClick={() => handleSave(false)} disabled={saving} className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400">
-                            <Save className="w-4 h-4 mr-2" />Kaydet
-                        </Button>
-                        <Button onClick={() => handleSave(true)} disabled={saving} className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
-                            <FileText className="w-4 h-4 mr-2" />Kaydet + Yazdır
-                        </Button>
+                    <div className="p-6 border-t border-white/10 space-y-3">
+                        <div className="flex gap-3">
+                            <Button variant="ghost" onClick={() => handlePrintOnly('order')} className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400">
+                                <FileText className="w-4 h-4 mr-2" />Sipariş Formu
+                            </Button>
+                            <Button variant="ghost" onClick={() => handlePrintOnly('delivery')} className="flex-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400">
+                                <Printer className="w-4 h-4 mr-2" />Teslim Formu
+                            </Button>
+                        </div>
+                        <div className="flex gap-3">
+                            <Button variant="ghost" onClick={() => handleSave(false)} disabled={saving} className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400">
+                                <Save className="w-4 h-4 mr-2" />Kaydet
+                            </Button>
+                            <Button onClick={() => { setFormType('order'); handleSave(true); }} disabled={saving} className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
+                                <FileText className="w-4 h-4 mr-2" />Kaydet + Sipariş
+                            </Button>
+                        </div>
                     </div>
                 </motion.div>
             </motion.div>
         </AnimatePresence>
     );
 };
+
 
 
 // ==================== ADMIN PANEL PAGE ====================
