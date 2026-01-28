@@ -540,26 +540,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
     </div>
     ` : ''}
 
-    <div class="terms">
-        <div class="terms-title">Teslim Sartlari</div>
-        <ul>
-            ${entryType === 'service' ? `
-            <li>Teslim edilen cihaz ve aksesuarlar yukaridaki bilgiler dogrultusunda teslim alinmistir.</li>
-            <li>Onarim sureci ariza tespiti sonrasi bildirilecektir.</li>
-            <li>Fiyat teklifi onayiniz alindiktan sonra isleme baslanacaktir.</li>
-            <li>Cihazlar 30 gun icinde teslim alinmalidir.</li>
-            ` : entryType === 'rental' ? `
-            <li>Kiralanan urunler eksiksiz ve calisir durumda teslim edilmistir.</li>
-            <li>Urunlerin hasarsiz sekilde iade edilmesi gerekmektedir.</li>
-            <li>Hasar durumunda onarim/degisim bedeli musteriye yansitilavaktir.</li>
-            ` : `
-            <li>Urun eksiksiz ve calisir durumda teslim edilmistir.</li>
-            <li>Teslim sirasinda urun kontrolu yapilmistir.</li>
-            <li>Iade islemleri 14 gun icinde yapilabilir.</li>
-            `}
-        </ul>
-    </div>
-
+    
     <div class="signatures">
         <div class="signature-box">
             <div class="sig-title">Teslim Eden</div>
