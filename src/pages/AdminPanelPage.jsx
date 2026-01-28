@@ -329,29 +329,29 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
     <title>${getFormTitle()} - ${trackingId}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @page { size: A4; margin: 10mm; }
+        @page { size: A4; margin: 15mm; }
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
-            padding: 10mm; 
-            font-size: 9pt;
+            padding: 15mm; 
+            font-size: 10pt;
             color: #1a1a1a;
-            line-height: 1.3;
+            line-height: 1.4;
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #7c3aed;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
         }
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .logo-section img.logo-icon {
-            height: 45px;
+            height: 50px;
             width: auto;
         }
         .company-info {
@@ -359,66 +359,67 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
             flex-direction: column;
         }
         .company-info img.logo-text {
-            height: 22px;
+            height: 26px;
             width: auto;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         .company-info p {
-            font-size: 7pt;
+            font-size: 8pt;
             color: #666;
+            margin-top: 2px;
         }
         .form-title {
             text-align: right;
         }
         .form-title h2 {
-            font-size: 11pt;
+            font-size: 12pt;
             color: #7c3aed;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .form-title .tracking {
             font-family: monospace;
-            font-size: 10pt;
+            font-size: 11pt;
             color: #1a1a1a;
             background: #f3f0ff;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-weight: bold;
         }
         .form-title .date {
-            font-size: 8pt;
+            font-size: 9pt;
             color: #666;
-            margin-top: 3px;
+            margin-top: 4px;
         }
         .section {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
         .section-title {
-            font-size: 9pt;
+            font-size: 10pt;
             font-weight: 600;
             color: #7c3aed;
             border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 3px;
-            margin-bottom: 6px;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
         }
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 8px;
         }
-        .field { margin-bottom: 2px; }
+        .field { margin-bottom: 4px; }
         .field-label {
-            font-size: 7pt;
+            font-size: 8pt;
             color: #666;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
         }
         .field-value {
-            font-size: 9pt;
+            font-size: 10pt;
             color: #1a1a1a;
-            padding: 4px 8px;
+            padding: 6px 10px;
             background: #f9fafb;
             border: 1px solid #e5e7eb;
-            border-radius: 3px;
-            min-height: 20px;
+            border-radius: 4px;
+            min-height: 24px;
         }
         .field-value.empty { color: #999; font-style: italic; }
         .field-value.total { font-weight: bold; color: #16a34a; }
@@ -426,61 +427,61 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
         .accessories-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 6px;
         }
         .accessory-item {
-            padding: 2px 8px;
+            padding: 3px 10px;
             background: #f3f0ff;
             border: 1px solid #7c3aed;
-            border-radius: 3px;
-            font-size: 8pt;
+            border-radius: 4px;
+            font-size: 9pt;
             color: #7c3aed;
         }
         .terms {
-            margin-top: 10px;
-            padding: 8px;
+            margin-top: 14px;
+            padding: 10px;
             background: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 6px;
-            font-size: 7pt;
+            font-size: 8pt;
             color: #666;
         }
         .terms h4 {
-            font-size: 8pt;
+            font-size: 9pt;
             color: #1a1a1a;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .terms ul {
-            padding-left: 12px;
+            padding-left: 14px;
             margin: 0;
         }
-        .terms li { margin-bottom: 1px; }
+        .terms li { margin-bottom: 2px; }
         .signatures {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 12px;
-            padding-top: 10px;
+            gap: 40px;
+            margin-top: 20px;
+            padding-top: 12px;
             border-top: 1px solid #e5e7eb;
         }
         .signature-box { text-align: center; }
         .signature-box p {
-            font-size: 7pt;
+            font-size: 8pt;
             color: #666;
-            margin-bottom: 25px;
+            margin-bottom: 35px;
         }
         .signature-line {
             border-top: 1px solid #1a1a1a;
-            padding-top: 3px;
-            font-size: 8pt;
+            padding-top: 4px;
+            font-size: 9pt;
         }
         .footer {
-            margin-top: 8px;
+            margin-top: 12px;
             text-align: center;
-            font-size: 7pt;
+            font-size: 8pt;
             color: #999;
             border-top: 1px solid #e5e7eb;
-            padding-top: 5px;
+            padding-top: 8px;
         }
         @media print {
             body { padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -559,6 +560,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, entryType, toast }) => {
     </div>
 </body>
 </html>
+
         `;
 
         printWindow.document.write(htmlContent);
