@@ -897,95 +897,86 @@ const AdminPanelPage = () => {
     const handleManualSave = async (data, type) => {
         try {
             let endpoint = '';
-            if (type === 'service') endpoint = `${API_URL}/api/service-requests`;
-            else if (type === 'rental') endpoint = `${API_URL}/api/rental-requests`;
-            else endpoint = `${API_URL}/api/purchases`;
+            let payload = {};
+
+            if (type === 'service') {
+                endpoint = `${API_URL}/service-requests`;
+                payload = {
+                    full_name: data.full_name,
+                    email: data.email || '',
+                    phone: data.phone,
+                    device: data.device,
+                    fault_type: data.fault_type,
+                    fault_description: data.fault_description || '',
+                    delivery_method: data.delivery_method,
+                    address: data.address || '',
+                    serial_number: data.serial_number || '',
+                    accessories: data.accessories || [],
+                    status: 'pending'
+                };
+            } else if (type === 'rental') {
+                endpoint = `${API_URL}/rental-requests`;
+                payload = {
+                    full_name: data.full_name,
+                    email: data.email || '',
+                    phone: data.phone,
+                    company: data.company || '',
+                    product_name: data.product_name,
+                    quantity: parseInt(data.quantity) || 1,
+                    duration: data.duration || '',
+                    event_date: data.event_date || '',
+                    message: data.message || '',
+                    address: data.address || '',
+                    status: 'pending'
+                };
+            } else if (type === 'purchase') {
+                endpoint = `${API_URL}/purchases`;
+                payload = {
+                    full_name: data.full_name,
+                    email: data.email || '',
+                    phone: data.phone,
+                    device: data.device || '',
+                    serial_number: data.serial_number || '',
+                    quantity: parseInt(data.quantity) || 1,
+                    invoice_type: data.invoice_type || 'individual',
+                    company_name: data.company_name || '',
+                    tax_office: data.tax_office || '',
+                    tax_no: data.tax_no || '',
+                    tc_no: data.tc_no || '',
+                    address: data.address || '',
+                    delivery_method: data.delivery_method,
+                    status: 'pending'
+                };
+            }
 
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(payload)
             });
 
-            if (!response.ok) throw new Error('Kayıt başarısız');
-
-            fetchData();
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    const fetchReceipt = async (requestId) => {
-        setLoadingReceipt(true);
-        try {
-            const response = await fetch(`${API_URL}/api/admin/purchase-requests/${requestId}/receipt`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const data = await response.json();
-            setReceiptUrl(data.url);
-        } catch (error) {
-            console.error('Receipt fetch error:', error);
-            toast({ title: 'Hata', description: 'Dekont yüklenemedi', variant: 'destructive' });
-        } finally {
-            setLoadingReceipt(false);
-        }
-    };
-
-    const openDetailModal = (request) => {
-        setSelectedRequest(request);
-        setReceiptUrl(null);
-        setShowDetailModal(true);
-
-        if (activeTab === 'purchase' && request.id) {
-            fetchReceipt(request.id);
-        }
-    };
-
-    const openStatusModal = (request) => {
-        setSelectedRequest(request);
-        setNewStatus(request.status);
-        setStatusNote('');
-        setPriceQuote('');
-        setShowStatusModal(true);
-    };
-
-    const handleStatusUpdate = async () => {
-        if (!selectedRequest || !newStatus) return;
-
-        try {
-            let endpoint = '';
-            if (activeTab === 'service') {
-                endpoint = `${API_URL}/api/admin/service-requests/${selectedRequest.id}/status`;
-            } else if (activeTab === 'rental') {
-                endpoint = `${API_URL}/api/admin/rental-requests/${selectedRequest.id}/status`;
-            } else if (activeTab === 'purchase') {
-                endpoint = `${API_URL}/api/admin/purchase-requests/${selectedRequest.id}/status`;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Kayıt oluşturulamadı');
             }
 
-            const response = await fetch(endpoint, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    notes: statusNote,
-                    priceQuote: priceQuote ? parseFloat(priceQuote) : undefined
-                })
-            });
+            const result = await response.json();
 
-            if (!response.ok) throw new Error('Güncelleme başarısız');
+            // Listeyi yenile
+            if (type === 'service') {
+                fetchServiceRequests();
+            } else if (type === 'rental') {
+                fetchRentalRequests();
+            } else if (type === 'purchase') {
+                fetchPurchases();
+            }
 
-            toast({ title: 'Başarılı', description: 'Durum güncellendi' });
-            setShowStatusModal(false);
-            fetchData();
-
+            return result;
         } catch (error) {
-            toast({ title: 'Hata', description: error.message, variant: 'destructive' });
+            console.error('Manuel kayıt hatası:', error);
+            throw error;
         }
     };
 
