@@ -982,9 +982,9 @@ const AdminPanelPage = () => {
             toast({ title: 'Başarılı', description: 'Durum güncellendi' });
             setShowStatusModal(false);
 
-            // Eğer status "delivered" ise teslim formu çıkartmak isteyip istemediğini sor
-            if (newStatus === 'delivered') {
-                setPendingDeliveryRequest({ ...selectedRequest, status: 'delivered' });
+            // Eğer status "delivered" veya "completed" ise teslim formu çıkartmak isteyip istemediğini sor
+            if (newStatus === 'delivered' || newStatus === 'completed') {
+                setPendingDeliveryRequest({ ...selectedRequest, status: newStatus });
                 setShowDeliveryConfirm(true);
             }
 
