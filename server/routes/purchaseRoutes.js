@@ -110,9 +110,9 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Gerekli alanlar eksik' });
         }
 
-        if (!receiptBase64) {
-            return res.status(400).json({ error: 'Dekont yuklenmedi' });
-        }
+        //if (!receiptBase64) {
+        //  return res.status(400).json({ error: 'Dekont yuklenmedi' });
+        //}
 
         const purchaseId = generatePurchaseId();
 
